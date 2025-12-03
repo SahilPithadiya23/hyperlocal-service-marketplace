@@ -1,4 +1,5 @@
 const userModel = require('../models/user.model');
+const providerModel = require('../models/sprovider.model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -49,4 +50,89 @@ async function loginUser(req, res) {
 });
 }
 
-module.exports = {registerUser, loginUser};
+async function registerProvider(req, res) {
+    const {
+        firstName,
+        lastName,
+        serviceName,
+        email,
+        phone,
+        password,
+        serviceCategory,
+        experience,
+        address,
+        city,
+        pincode
+    } = req.body;
+
+        // Check if already exists
+        const exists = await providerModel.findOne({ email });
+        if (exists) {
+            return res.status(400).json({ message: 'Provider already exists' });
+        }
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create provider
+        const provider = await providerModel.create({
+            firstName,
+            lastName,
+            serviceName,
+            email,
+            phone,
+            password: hashedPassword,
+            serviceCategory,
+            experience,
+            address,
+            city,
+            pincode
+        });
+
+        // JWT Token
+        const token = jwt.sign({ id: provider._id }, process.env.JWT_SECRET);
+        res.cookie('providerToken', token);
+
+        // Response
+        res.status(201).json({
+            message: 'Service Provider registered successfully',
+            provider: {
+                _id: provider._id,
+                firstName: provider.firstName,
+                lastName: provider.lastName,
+                serviceName: provider.serviceName,
+                email: provider.email
+            }
+        });
+}
+
+async function loginProvider(req, res) {
+    const { email, password } = req.body;
+        const provider = await providerModel.findOne({ email });
+        if (!provider) {
+            return res.status(400).json({ message: 'Invalid email or password' });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, provider.password);
+
+        if (!isPasswordValid) {
+            return res.status(400).json({ message: 'Invalid email or password' });
+        }
+
+        const token = jwt.sign({ id: provider._id }, process.env.JWT_SECRET);
+        res.cookie('providerToken', token);
+
+        res.status(200).json({
+            message: 'Service Provider logged in successfully',
+            provider: {
+                _id: provider._id,
+                firstName: provider.firstName,
+                lastName: provider.lastName,
+                serviceName: provider.serviceName,
+                email: provider.email
+            }
+        });
+}
+
+
+module.exports = {registerUser, loginUser, registerProvider,loginProvider};
