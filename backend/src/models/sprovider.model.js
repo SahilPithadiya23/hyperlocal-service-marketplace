@@ -43,6 +43,12 @@ const serviceProviderSchema = new mongoose.Schema({
     },
     pincode: {
         type: String,
+    },
+    lat: {
+        type: Number,
+    },
+    long: {
+        type: Number,
     }
 
 }, { timestamps: true });

@@ -22,6 +22,8 @@ async function registerUser(req, res) {
     firstName:user.firstName,
     lastName:user.lastName,
     email:user.email,
+    lat:user.lat,
+    long:user.long
     }
 });
 }
@@ -46,6 +48,8 @@ async function loginUser(req, res) {
     firstName:user.firstName,
     lastName:user.lastName,
     email:user.email,
+    lat:user.lat,
+    long:user.long
     }
 });
 }
@@ -64,7 +68,9 @@ async function registerProvider(req, res) {
         experience,
         address,
         city,
-        pincode
+        pincode,
+        lat,
+        long
     } = req.body;
 
         // Check if already exists
@@ -88,7 +94,9 @@ async function registerProvider(req, res) {
             experience,
             address,
             city,
-            pincode
+            pincode,
+            lat,
+            long
         });
 
         // JWT Token
@@ -103,7 +111,9 @@ async function registerProvider(req, res) {
                 firstName: provider.firstName,
                 lastName: provider.lastName,
                 serviceName: provider.serviceName,
-                email: provider.email
+                email: provider.email,
+                lat:provider.lat,
+                long:provider.long
             }
         });
 }
@@ -131,7 +141,9 @@ async function loginProvider(req, res) {
                 firstName: provider.firstName,
                 lastName: provider.lastName,
                 serviceName: provider.serviceName,
-                email: provider.email
+                email: provider.email,
+                lat:provider.lat,
+                long:provider.long
             }
         });
 }
