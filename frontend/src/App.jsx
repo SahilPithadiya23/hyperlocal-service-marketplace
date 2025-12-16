@@ -1,32 +1,54 @@
 import React, { useEffect, useState } from "react";
 import OpenStreetMapPlot from "./components/OpenStreetMapPlot";
+import LocationSearch from "./components/LocationSearch";
 
 function App() {
   const [lat, setLat] = useState(null);
-  const [long, setLong] = useState(null);
+  const [lng, setLng] = useState(null);
 
-  // Get laptop location once when component loads
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLat(pos.coords.latitude);
-        setLong(pos.coords.longitude);
-      },
-      (err) => {
-        console.error("Location error:", err);
-      }
-    );
-  }, []);
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude, longitude } = pos.coords;
+      setLat(latitude);
+      setLng(longitude);
+    },
+    () => {
+      // If permission denied → fallback to default city
+      setLat(23.0225); // Ahmedabad
+      setLng(72.5714);
+    },
+    { enableHighAccuracy: true }
+  );
+}, []);
 
-  // Show loader until location arrives
-  if (lat === null || long === null) {
+
+  if (lat === null || lng === null) {
     return <p>Fetching your location...</p>;
   }
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-semibold mb-4">Location Plot</h1>
-      <OpenStreetMapPlot lat={lat} long={long} />
+    <div className="p-4 " >
+      <div  >
+
+      <h1 className="text-xl font-semibold mb-3">
+        Hyperlocal Service Marketplace
+      </h1>
+
+      {/* 🔍 Location Search */}
+      <LocationSearch
+        onSelect={(newLat, newLng) => {
+          setLat(newLat);
+          setLng(newLng);
+        }}
+        />
+        </div>
+        <div>
+
+          
+      {/* 🗺 Map */}
+      <OpenStreetMapPlot  lat={lat} lng={lng} />
+        </div>
     </div>
   );
 }
