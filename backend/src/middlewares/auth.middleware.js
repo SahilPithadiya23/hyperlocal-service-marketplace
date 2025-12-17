@@ -1,4 +1,5 @@
 const userModel = require('../models/user.model');
+const serviceproviderModel = require('../models/sprovider.model');
 const jwt = require('jsonwebtoken');
 
 async function authUserMiddleware(req, res, next) {
@@ -6,12 +7,17 @@ async function authUserMiddleware(req, res, next) {
     if (!token) {
         return res.status(401).json({ message: 'please login first' });
     }
-    try{
+    try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log(decoded.role);
+        if (decoded.role !== "user") {
+            return res.status(403).json({ message: "User access only" });
+        }
+
         const user = await userModel.findById(decoded.id);
         req.user = user;
         next();
-    }catch(error){
+    } catch (error) {
         return res.status(401).json({ message: 'invalid token' });
     }
 }
@@ -21,12 +27,16 @@ async function authSproviderMiddleware(req, res, next) {
     if (!token) {
         return res.status(401).json({ message: 'please login first' });
     }
-    try{
+    try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const serviceprovider = await userModel.findById(decoded.id);  
+        console.log(decoded.role);
+        if (decoded.role !== "provider") {
+            return res.status(403).json({ message: "Service Provider access only" });
+        }
+        const serviceprovider = await serviceproviderModel.findById(decoded.id);
         req.serviceprovider = serviceprovider;
         next();
-    }catch(error){
+    } catch (error) {
         return res.status(401).json({ message: 'invalid token' });
     }
 }

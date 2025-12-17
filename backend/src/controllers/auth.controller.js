@@ -14,7 +14,7 @@ async function registerUser(req, res) {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await userModel.create({firstName, lastName, email, password: hashedPassword, phone,address,city, pincode, lat, long});
 
-    const token = jwt.sign({id:user._id},process.env.JWT_SECRET);
+    const token = jwt.sign({id:user._id,role:"user"},process.env.JWT_SECRET);
     res.cookie('token', token);
 
     res.status(201).json({message: 'User registered successfully',
@@ -39,7 +39,7 @@ async function loginUser(req, res) {
         return res.status(400).json({message: 'Invalid email or password'});
     }
 
-    const token = jwt.sign({id:user._id},process.env.JWT_SECRET);
+    const token = jwt.sign({id:user._id,role:"user"},process.env.JWT_SECRET);
     res.cookie('token', token);
 
     res.status(200).json({
@@ -100,8 +100,8 @@ async function registerProvider(req, res) {
         });
 
         // JWT Token
-        const token = jwt.sign({ id: provider._id }, process.env.JWT_SECRET);
-        res.cookie('providerToken', token);
+        const token = jwt.sign({ id: provider._id ,role:"provider"}, process.env.JWT_SECRET);
+        res.cookie('token', token);
 
         // Response
         res.status(201).json({
@@ -131,8 +131,8 @@ async function loginProvider(req, res) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
-        const token = jwt.sign({ id: provider._id }, process.env.JWT_SECRET);
-        res.cookie('providerToken', token);
+        const token = jwt.sign({ id: provider._id ,role:"provider"}, process.env.JWT_SECRET);
+        res.cookie('token', token);
 
         res.status(200).json({
             message: 'Service Provider logged in successfully',
