@@ -6,4 +6,12 @@ export default defineConfig({
   plugins: [
     react(),
    tailwindcss()],
+   server: {
+    host: true,          // allow network access
+    port: 5173,          // your Vite port
+    strictPort: false,
+    allowedHosts: [
+      "privily-unfoaled-sadie.ngrok-free.dev",  // add your ngrok host here
+    ],
+  },
 })

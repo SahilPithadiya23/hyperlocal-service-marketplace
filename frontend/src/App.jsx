@@ -1,4 +1,5 @@
 import React from 'react'
+import LandingPage from './pages/LandingPage';
 import ServiceProviderSignUp from './pages/ServiceProviderSignUp'
 import UserSignUp from './pages/UserSignUp'
 import ServiceProviderLogin from './pages/ServiceProviderLogin'
@@ -13,11 +14,12 @@ const App = () => {
   return (
     <>
     <Routes>
-      <Route path="/" element={<ProtectRouter>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/profile" element={<ProtectRouter>
         <Profile/>
         </ProtectRouter>
         } />
-      <Route path="/profile" element={<SProtectRouter>
+      <Route path="/Sprofile" element={<SProtectRouter>
         <Sprofile/>
         </SProtectRouter>
         } />
