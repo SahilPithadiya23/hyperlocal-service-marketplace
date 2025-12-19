@@ -19,8 +19,14 @@ const UserLogin = () => {
     try{
     const response = await axios.post('http://localhost:3000/api/auth/user/login', newUser,{withCredentials:true});
     if(response.status === 200){
-      const data = response.data;
-      setUser(data.user);
+      const data = response.data.user;
+      setUser({
+        isAuth: true,
+        loading: false,
+        profile: data
+      });
+      console.log('Login successful:', user);
+      
       navigate('/');
     }
   }catch(err){
@@ -66,7 +72,7 @@ const UserLogin = () => {
 
           <button
             type="submit"
-            className="bg-gray-800 text-white p-2 rounded w-full hover:bg-gray-950 transition"
+            className="hover:cursor-pointer bg-gray-800 text-white p-2 rounded w-full hover:bg-gray-950 transition"
           >
             Login
           </button>

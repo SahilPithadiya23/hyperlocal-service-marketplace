@@ -5,18 +5,18 @@ import UserSignUp from './pages/UserSignUp'
 import ServiceProviderLogin from './pages/ServiceProviderLogin'
 import UserLogin from './pages/UserLogin'
 import { Route, Routes } from 'react-router-dom'
-import Profile from './pages/Profile'
 import ProtectRouter from './router/ProtectRouter'
 import SProtectRouter from './router/SProtectRouter'
 import Sprofile from './pages/Sprofile'
-
+import Map from './pages/Map';
 const App = () => {
   return (
     <>
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      <Route path="/profile" element={<ProtectRouter>
-        <Profile/>
+      <Route path="/map" element={
+        <ProtectRouter>
+        <Map/>
         </ProtectRouter>
         } />
       <Route path="/Sprofile" element={<SProtectRouter>

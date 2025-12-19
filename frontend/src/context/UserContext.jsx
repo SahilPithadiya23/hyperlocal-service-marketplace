@@ -1,22 +1,42 @@
-import React, { createContext, useState } from 'react'
+import { createContext, useEffect, useState } from "react";
+import axios from "axios";
 
 export const UserDataContext = createContext();
 
-const UserContext = ({children}) => {
-    const [user, setUser] = useState({
-      firstname: '',
-      lastname: '',
-      email: '',
-      lat: '',
-      long: ''
-    });
-  return (
-    <div>
-        <UserDataContext.Provider value={{user, setUser}}>
-            {children}
-        </UserDataContext.Provider>
-    </div>
-  )
-}
+const UserContext = ({ children }) => {
+  const [user, setUser] = useState({
+    isAuth: false,
+    loading: true,
+    profile: null,
+  });
 
-export default UserContext
+  // 🔑 Restore auth after reload
+  useEffect(() => {
+    axios
+      .get("http://localhost:3000/api/home/user/profile", {
+        withCredentials: true,
+      })
+      .then((res) => {
+        setUser({
+          isAuth: true,
+          loading: false,
+          profile: res.data.user,
+        });
+      })
+      .catch(() => {
+        setUser({
+          isAuth: false,
+          loading: false,
+          profile: null,
+        });
+      });
+  }, []);
+
+  return (
+    <UserDataContext.Provider value={{ user, setUser }}>
+      {children}
+    </UserDataContext.Provider>
+  );
+};
+
+export default UserContext;

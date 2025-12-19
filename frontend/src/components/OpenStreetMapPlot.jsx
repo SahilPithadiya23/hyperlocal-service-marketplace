@@ -130,12 +130,12 @@ const OpenStreetMapPlot = ({ lat, lng }) => {
 
   const mainIcon = new L.Icon({
     iconUrl: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-    iconSize: [38, 38],
+    iconSize: [40, 40],
   });
 
   const nearbyIcon = new L.Icon({
     iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-    iconSize: [32, 32],
+    iconSize: [40, 40],
   });
 
   const nearbyLocations = [

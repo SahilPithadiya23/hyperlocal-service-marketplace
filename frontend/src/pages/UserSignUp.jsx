@@ -170,7 +170,7 @@ const UserSignUp = () => {
           <button
             type="button"
             onClick={getLocation}
-            className="bg-gray-200 text-black p-2 rounded w-full mb-3"
+            className="bg-gray-200 text-black p-2 rounded w-full mb-3 hover:cursor-pointer"
           >
             Get My Location
           </button>
@@ -178,7 +178,7 @@ const UserSignUp = () => {
           {/* Submit */}
           <button
             type="submit"
-            className="bg-gray-800 text-white p-2 rounded w-full hover:bg-gray-950 transition"
+            className="bg-gray-800 text-white p-2 rounded w-full hover:bg-gray-950 hover:cursor-pointer transition"
           >
             Sign Up
           </button>

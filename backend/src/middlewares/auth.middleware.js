@@ -9,7 +9,6 @@ async function authUserMiddleware(req, res, next) {
     }
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log(decoded.role);
         if (decoded.role !== "user") {
             return res.status(403).json({ message: "User access only" });
         }

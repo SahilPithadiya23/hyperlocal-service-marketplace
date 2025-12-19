@@ -218,7 +218,7 @@ const ServiceProviderSignUp = () => {
           <button
             type="button"
             onClick={getLocation}
-            className="bg-gray-200 text-black p-2 rounded w-full mb-3"
+            className="bg-gray-200 text-black p-2 rounded w-full mb-3 hover:cursor-pointer"
           >
              Get My Location
           </button>
@@ -226,7 +226,7 @@ const ServiceProviderSignUp = () => {
           {/* Submit */}
           <button
             type="submit"
-            className="bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600"
+            className="bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600 hover:cursor-pointer"
           >
             Sign Up
           </button>

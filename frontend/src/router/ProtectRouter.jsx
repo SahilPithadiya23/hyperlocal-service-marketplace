@@ -1,23 +1,26 @@
-import { Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import axios from "axios";
+
+import { Navigate, useLocation } from "react-router-dom";
+import { useContext } from "react";
+import { UserDataContext } from "../context/UserContext";
 
 const ProtectRouter = ({ children }) => {
-  const [loading, setLoading] = useState(true);
-  const [isAuth, setIsAuth] = useState(false);
+  const { user } = useContext(UserDataContext);
+  const location = useLocation();
 
-  useEffect(() => {
-    axios.get("http://localhost:3000/api/home/user/profile", {
-      withCredentials: true
-    })
-    .then(() => setIsAuth(true))
-    .catch(() => setIsAuth(false))
-    .finally(() => setLoading(false));
-  }, []);
+  if (user.loading) {
+    return <p>Checking authentication...</p>;
+  }
 
-  if (loading) return <p>Checking authentication...</p>;
+  if (!user.isAuth) {
+    return (
+      <Navigate
+        to="/user-login"
+        state={{ from: location }}
+      />
+    );
+  }
 
-  return isAuth ? children : <Navigate to="/user-login" />;
+  return children;
 };
 
 export default ProtectRouter;

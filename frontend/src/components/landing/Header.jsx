@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Menu, X, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
+import IsLoginBtn from "./IsLoginBtn";
 
 const Header = () => {
   const [open, setOpen] = useState(false);
@@ -32,12 +33,13 @@ const Header = () => {
               Why LocalServe
             </a>
 
-            <Link
+            {/* <Link
               to="/user-login"
               className="px-5 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
             >
               Login
-            </Link>
+            </Link> */}
+          <IsLoginBtn/>
           </nav>
 
           {/* Mobile Menu Button */}

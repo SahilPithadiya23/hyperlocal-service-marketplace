@@ -19,6 +19,15 @@ const SERVICES = [
 const HeroSection = ({ onSearch }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+
+  const isServiceValid = (service) => {
+  return SERVICES.some(
+    (s) => s.toLowerCase() === service.trim().toLowerCase()
+  );
+};
+
 
   const filteredServices =
     searchQuery.trim() !== ""
@@ -28,18 +37,34 @@ const HeroSection = ({ onSearch }) => {
       : [];
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      onSearch(searchQuery);
-      setShowSuggestions(false);
-    }
-  };
+  e.preventDefault();
+
+  if (!searchQuery.trim()) return;
+
+  if (!isServiceValid(searchQuery)) {
+    setErrorMsg("Service not available");
+    setShowSuggestions(false);
+    return;
+  }
+
+  setErrorMsg("");
+  onSearch(searchQuery);
+  setShowSuggestions(false);
+};
+
 
   const handleSuggestionClick = (service) => {
-    setSearchQuery(service);
-    setShowSuggestions(false);
-    onSearch(service);
-  };
+  if (!isServiceValid(service)) {
+    setErrorMsg("Service not available");
+    return;
+  }
+
+  setErrorMsg("");
+  setSearchQuery(service);
+  setShowSuggestions(false);
+  onSearch(service);
+};
+
 
   return (
     <section className="bg-blue-600 px-4 sm:px-6 pt-16 sm:pt-20 pb-24 sm:pb-28 rounded-b-3xl">
@@ -75,7 +100,7 @@ const HeroSection = ({ onSearch }) => {
               bg-white
               text-black
               border-2 border-gray-200
-              focus:border-green-400
+              focus:border-gray-600
               outline-none
             "
           />
@@ -83,14 +108,16 @@ const HeroSection = ({ onSearch }) => {
           <button
             type="submit"
             className="
+              text-white
               absolute right-2 top-1/2 -translate-y-1/2
               h-10 sm:h-12
               px-5 sm:px-8
               rounded-xl
-              bg-green-400
-              text-black
-              hover:bg-green-500
+              bg-blue-700
+              font-medium
+              hover:font-bold hover:bg-blue-800 hover:cursor-pointer
               transition
+              
             "
           >
             Search
@@ -119,7 +146,7 @@ const HeroSection = ({ onSearch }) => {
                     cursor-pointer
                     text-sm sm:text-base
                     text-black
-                    hover:bg-green-50
+                    hover:bg-blue-50
                   "
                 >
                   {service}
@@ -128,6 +155,12 @@ const HeroSection = ({ onSearch }) => {
             </div>
           )}
         </form>
+        {errorMsg && (
+  <p className="mt-5 bg-red-100 text-red-700 p-2 rounded mb-4 text-center">
+    {errorMsg}
+  </p>
+)}
+
       </div>
     </section>
   );

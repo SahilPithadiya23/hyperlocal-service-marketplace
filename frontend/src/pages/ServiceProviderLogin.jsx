@@ -63,7 +63,7 @@ const ServiceProviderLogin = () => {
 
           <button
             type="submit"
-            className="bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600 transition"
+            className="bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600 hover:cursor-pointer transition"
           >
             Login
           </button>

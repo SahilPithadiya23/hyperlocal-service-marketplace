@@ -7,9 +7,7 @@ router.post('/user/register', authController.registerUser);
 router.post('/user/login', authController.loginUser);
 router.post('/sprovider/register', authController.registerProvider);
 router.post('/sprovider/login',authController.loginProvider);
-router.get('/profile', authUserMiddleware,(req, res) => {
-    res.status(200).json({message: 'Profile fetched successfully', user: req.user});
-});
+router.get('/user/logout', authUserMiddleware, authController.logOut);
 
 
 module.exports = router;

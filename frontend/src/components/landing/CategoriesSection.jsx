@@ -20,7 +20,7 @@ const categories = [
 
 const CategoriesSection = ({ onCategorySelect }) => {
   return (
-    <section className="py-12 sm:py-16 md:py-24 bg-gray-50">
+    <section id="categories" className="py-12 sm:py-16 md:py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         <div className="text-center mb-8 sm:mb-12">

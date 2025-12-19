@@ -53,7 +53,7 @@ const SlidesSection = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, []);
@@ -67,7 +67,7 @@ const SlidesSection = () => {
   };
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-white">
+    <section id="why-us" className="py-12 sm:py-16 md:py-20 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Title */}
         <div className="text-center mb-10">
@@ -86,7 +86,7 @@ const SlidesSection = () => {
             style={{ transform: `translateX(-${currentSlide * 100}%)` }}
           >
             {slides.map((slide) => (
-              <div key={slide.id} className="min-w-full relative h-[260px] sm:h-[320px] md:h-[420px]">
+              <div key={slide.id} className="min-w-full relative h-[260px]  md:h-[420px]">
                 {/* Slide Image */}
                 <img
                   src={slide.image}

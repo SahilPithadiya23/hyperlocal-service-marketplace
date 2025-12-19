@@ -148,5 +148,10 @@ async function loginProvider(req, res) {
         });
 }
 
+function logOut(req,res){
+    const token = req.cookies.token;
+    res.clearCookie('token');
+    res.status(200).json({ message: 'User logged out successfully' });
+}
 
-module.exports = {registerUser, loginUser, registerProvider,loginProvider};
+module.exports = {registerUser, loginUser, registerProvider,loginProvider,logOut};
