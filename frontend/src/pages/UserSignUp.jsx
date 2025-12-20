@@ -22,16 +22,36 @@ const UserSignUp = () => {
   const [long, setLong] = useState(null)
 
   // 📍 Get user location
+  // const getLocation = () => {
+  //   navigator.geolocation.getCurrentPosition(
+  //     (pos) => {
+  //       setLat(pos.coords.latitude)
+  //       setLong(pos.coords.longitude)
+  //       alert("Location captured successfully")
+  //     },
+  //     () => alert("Location permission denied")
+  //   )
+  // }   
   const getLocation = () => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLat(pos.coords.latitude)
-        setLong(pos.coords.longitude)
-        alert("Location captured successfully")
-      },
-      () => alert("Location permission denied")
-    )
-  }   
+  const options = {
+    enableHighAccuracy: true, // ⬅️ This is the critical fix
+    timeout: 10000,           // Wait up to 10 seconds
+    maximumAge: 0             // Do not use a cached (old) location
+  };
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      setLat(pos.coords.latitude);
+      setLong(pos.coords.longitude);
+      alert("Location captured successfully!");
+    },
+    (err) => {
+      console.error(err);
+      alert(`Location Error: ${err.message}. Please ensure GPS is on.`);
+    },
+    options // ⬅️ Pass the options here
+  );
+};
 
   const submitHandler = async (e) => {
     e.preventDefault()

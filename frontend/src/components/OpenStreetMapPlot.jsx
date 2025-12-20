@@ -1,98 +1,66 @@
-
-// export default OpenStreetMapPlot;
-// import React from "react";
-// import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
+// import React, { useMemo, useRef, useEffect } from "react";
+// import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
 // import L from "leaflet";
+// import "leaflet/dist/leaflet.css";
 
-// const OpenStreetMapPlot = ({ lat, lng }) => {
-//   // 🔧 Ensure we convert input to real numbers
-//   const latitude = parseFloat(lat);
-//   const longitude = parseFloat(lng);
+// // Fix for default Leaflet icons not appearing correctly in React
+// const defaultIcon = new L.Icon({
+//   iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+//   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+//   iconSize: [25, 41],
+//   iconAnchor: [12, 41],
+// });
 
-//   console.log("Safe parsed coords → LAT:", latitude, "LNG:", longitude);
+// // Component to move the map when search coordinates change
+// function ChangeView({ center }) {
+//   const map = useMap();
+//   useEffect(() => {
+//     map.setView(center, 16);
+//   }, [center, map]);
+//   return null;
+// }
 
-//   if (isNaN(latitude) || isNaN(longitude)) {
-//     return <p className="text-red-500 font-semibold">Location not valid</p>;
-//   }
-
-//   const position = [latitude, longitude];
-
-//   const mainIcon = new L.Icon({
-//     iconUrl: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-//     iconSize: [38, 38],
-//   });
-
-//   const nearbyIcon = new L.Icon({
-//     iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-//     iconSize: [32, 32],
-//   });
-
-//   // 📍 Nearby markers now use safe numbers, not raw props
-//   const nearbyLocations = [
-//     {
-//       id: 1,
-//       coords: [latitude + 0.002, longitude + 0.002],
-//       profile: {
-//         name: "Ravi Sharma",
-//         role: "electrician",
-//         avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+// // The Draggable Marker Logic
+// function DraggableMarker({ position, onLocationChange }) {
+//   const markerRef = useRef(null);
+//   const eventHandlers = useMemo(
+//     () => ({
+//       dragend() {
+//         const marker = markerRef.current;
+//         if (marker != null) {
+//           const newPos = marker.getLatLng();
+//           onLocationChange(newPos.lat, newPos.lng);
+//         }
 //       },
-//     },
-//     {
-//       id: 2,
-//       coords: [latitude - 0.003, longitude - 0.001],
-//       profile: {
-//         name: "Amit Patel",
-//         role: "plumber",
-//         avatar: "https://randomuser.me/api/portraits/men/44.jpg",
-//       },
-//     },
-//     {
-//       id: 3,
-//       coords: [latitude + 0.004, longitude - 0.002],
-//       profile: {
-//         name: "Neha Verma",
-//         role: "home tutor",
-//         avatar: "https://randomuser.me/api/portraits/women/65.jpg",
-//       },
-//     },
-//   ];
+//     }),
+//     [onLocationChange]
+//   );
 
 //   return (
-//     <div className="w-full h-[500px] rounded-2xl shadow-md overflow-hidden">
-//       <MapContainer center={position} zoom={15} className="w-full h-full">
-//         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" maxZoom={19} />
+//     <Marker
+//       draggable={true}
+//       eventHandlers={eventHandlers}
+//       position={position}
+//       ref={markerRef}
+//       icon={defaultIcon}
+//     >
+//       <Popup>Drag this pin to your exact building!</Popup>
+//     </Marker>
+//   );
+// }
 
-//         {/* Main marker */}
-//         <Marker position={position} icon={mainIcon}>
-//           <Popup>Your current spot</Popup>
-//         </Marker>
+// const OpenStreetMapPlot = ({ lat, lng, onLocationChange }) => {
+//   const position = [lat, lng];
 
-//         {/* ⭕ 1KM circle always stable */}
-//         <Circle center={position} radius={1000} weight={2} fillOpacity={0.1} />
-
-//         {/* Nearby markers */}
-//         {nearbyLocations.map((loc) => (
-//           <Marker key={loc.id} position={loc.coords} icon={nearbyIcon}>
-//             <Popup>
-//               <div className="flex flex-col items-center gap-1 p-2">
-//                 <img
-//                   src={loc.profile.avatar}
-//                   className="w-12 h-12 rounded-full border shadow-sm object-cover"
-//                   alt="profile"
-//                 />
-//                 <p className="font-semibold text-sm">{loc.profile.name}</p>
-//                 <p className="text-xs text-gray-600 capitalize">{loc.profile.role}</p>
-//                 <button
-//                   className="mt-1 bg-blue-500 text-white px-2 py-1 text-xs rounded-lg hover:bg-blue-600 transition"
-//                   onClick={() => alert(`Viewing ${loc.profile.name}`)}
-//                 >
-//                   Show details
-//                 </button>
-//               </div>
-//             </Popup>
-//           </Marker>
-//         ))}
+//   return (
+//     <div className="w-full h-[450px] md:h-[80vh] rounded-xl overflow-hidden border shadow-inner ">
+//       <MapContainer center={position} zoom={15} className="w-full h-full ">
+//         <ChangeView center={position} />
+//         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        
+//         <DraggableMarker position={position} onLocationChange={onLocationChange} />
+        
+//         <Circle center={position} radius={500} pathOptions={{ color: 'blue', fillColor: 'blue', fillOpacity: 0.1 }} />
 //       </MapContainer>
 //     </div>
 //   );
@@ -101,79 +69,100 @@
 // export default OpenStreetMapPlot;
 
 
-import React, { useEffect } from "react";
+
+import React, { useMemo, useRef, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
-/* 🔹 This component moves the map when coords change */
-const ChangeView = ({ center }) => {
+// Standard icon for the User/Center
+const defaultIcon = new L.Icon({
+  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+// Unique icon for Service Providers (Green)
+const providerIcon = new L.Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+function ChangeView({ center }) {
   const map = useMap();
-
   useEffect(() => {
-    map.setView(center, 15, {
-      animate: true,
-    });
+    map.setView(center, 16);
   }, [center, map]);
-
   return null;
-};
+}
 
-const OpenStreetMapPlot = ({ lat, lng }) => {
-  const latitude = parseFloat(lat);
-  const longitude = parseFloat(lng);
-
-  if (isNaN(latitude) || isNaN(longitude)) {
-    return <p className="text-red-500">Invalid location</p>;
-  }
-
-  const position = [latitude, longitude];
-
-  const mainIcon = new L.Icon({
-    iconUrl: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-    iconSize: [40, 40],
-  });
-
-  const nearbyIcon = new L.Icon({
-    iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-    iconSize: [40, 40],
-  });
-
-  const nearbyLocations = [
-    {
-      id: 1,
-      coords: [latitude + 0.002, longitude + 0.002],
-      profile: { name: "Ravi Sharma", role: "electrician" },
-    },
-    {
-      id: 2,
-      coords: [latitude - 0.003, longitude - 0.001],
-      profile: { name: "Amit Patel", role: "plumber" },
-    },
-  ];
+function DraggableMarker({ position, onLocationChange }) {
+  const markerRef = useRef(null);
+  const eventHandlers = useMemo(
+    () => ({
+      dragend() {
+        const marker = markerRef.current;
+        if (marker != null) {
+          const newPos = marker.getLatLng();
+          onLocationChange(newPos.lat, newPos.lng);
+        }
+      },
+    }),
+    [onLocationChange]
+  );
 
   return (
-    <div className="w-full h-[500px] rounded-2xl overflow-hidden">
-      <MapContainer center={position} zoom={15} className="w-full h-full ">
-        {/* 🔑 THIS IS THE FIX */}
-        <ChangeView center={position} />
+    <Marker draggable={true} eventHandlers={eventHandlers} position={position} ref={markerRef} icon={defaultIcon}>
+      <Popup>Your Selected Location</Popup>
+    </Marker>
+  );
+}
 
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          maxZoom={19}
+const OpenStreetMapPlot = ({ lat, lng, onLocationChange, providers = [] }) => {
+  const centerPosition = [lat, lng];
+  const RADIUS_METERS = 500;
+
+  // Filter providers that are within the 500m radius
+  const nearbyProviders = providers.filter((provider) => {
+    const providerLatLng = L.latLng(provider.lat, provider.lng);
+    const centerLatLng = L.latLng(lat, lng);
+    return centerLatLng.distanceTo(providerLatLng) <= RADIUS_METERS;
+  });
+
+  return (
+    <div className="w-full h-[450px] md:h-[80vh] rounded-xl overflow-hidden border shadow-inner">
+      <MapContainer center={centerPosition} zoom={15} className="w-full h-full">
+        <ChangeView center={centerPosition} />
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        
+        {/* User's Draggable Marker */}
+        <DraggableMarker position={centerPosition} onLocationChange={onLocationChange} />
+        
+        {/* Visual Radius Circle */}
+        <Circle 
+          center={centerPosition} 
+          radius={RADIUS_METERS} 
+          pathOptions={{ color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.1 }} 
         />
 
-        <Marker position={position} icon={mainIcon}>
-          <Popup>Your selected location</Popup>
-        </Marker>
-
-        <Circle center={position} radius={1000} />
-
-        {nearbyLocations.map((loc) => (
-          <Marker key={loc.id} position={loc.coords} icon={nearbyIcon}>
+        {/* Render Nearby Providers */}
+        {nearbyProviders.map((shop) => (
+          <Marker 
+            key={shop.id} 
+            position={[shop.lat, shop.lng]} 
+            icon={providerIcon}
+          >
             <Popup>
-              <b>{loc.profile.name}</b>
-              <br />
-              {loc.profile.role}
+              <div className="p-1">
+                <h3 className="font-bold text-blue-600">{shop.name}</h3>
+                <p className="text-xs text-gray-600">{shop.serviceType}</p>
+                <button className="mt-2 bg-blue-500 text-white text-[10px] px-2 py-1 rounded">
+                  Book Now
+                </button>
+              </div>
             </Popup>
           </Marker>
         ))}

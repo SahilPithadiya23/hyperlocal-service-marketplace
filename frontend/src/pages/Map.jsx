@@ -1,63 +1,59 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 import OpenStreetMapPlot from "../components/OpenStreetMapPlot";
 import LocationSearch from "../components/LocationSearch";
-import { UserDataContext } from "../context/UserContext";
+import SmartLocationInput from "../components/SmartLocationInput";
+function App() {
+  const [lat, setLat] = useState(23.0225); // Default Ahmedabad
+  const [lng, setLng] = useState(72.5714);
+  const [address, setAddress] = useState("");
+  const dummyProviders = [
+  { id: 1, name: "Amdavad Electricians", lat: 23.0230, lng: 72.5720, serviceType: "Electrical" },
+  { id: 2, name: "Gujarat Plumbers", lat: 23.0210, lng: 72.5700, serviceType: "Plumbing" },
+  { id: 3, name: "Rajkot Cleaners", lat: 23.0500, lng: 72.5800, serviceType: "Cleaning" }, // Out of range
+];
 
-function Map() {
-  const [lat, setLat] = useState(null);
-  const [lng, setLng] = useState(null);
-  const {user} = useContext(UserDataContext)
+  const handleLocationChange = async (newLat, newLng, manualAddress = null) => {
+    setLat(newLat);
+    setLng(newLng);
 
-  useEffect(() => {
-  // navigator.geolocation.getCurrentPosition(
-  //   (pos) => {
-  //     const { latitude, longitude } = pos.coords;
-  //     setLat(latitude);
-  //     setLng(longitude);
-  //   },
-  //   () => {
-  //     // If permission denied → fallback to default city
-  //     setLat(23.0225); // Ahmedabad
-  //     setLng(72.5714);
-  //   },
-  //   { enableHighAccuracy: true }
-  // );
-  console.log("user profile in map page", user);
-  if(user.profile.lat && user.profile.long){
-    setLat(user.profile.lat);
-    setLng(user.profile.long);
-  }
-}, []);
-
-
-  if (lat === null || lng === null) {
-    return <p>Fetching your location...</p>;
-  }
+    if (manualAddress) {
+      setAddress(manualAddress);
+    } else {
+      // If user dragged the pin, find the new address text
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${newLat}&lon=${newLng}`);
+      const data = await res.json();
+      setAddress(data.display_name);
+    }
+  };
 
   return (
-    <div className="p-4 " >
-      <div  >
 
-      <h1 className="text-xl font-semibold mb-3">
-        Hyperlocal Service Marketplace
-      </h1>
-
-      {/* 🔍 Location Search */}
-      <LocationSearch
-        onSelect={(newLat, newLng) => {
-          setLat(newLat);
-          setLng(newLng);
-        }}
+    // Changed max-w-2xl to max-w-6xl for a much wider layout
+    <div className="max-w-6xl mx-auto p-4 min-h-screen flex flex-col">
+      <h1 className="text-xl font-bold mb-4 text-gray-800">Search Location / Precisely drag the pin to your building for better service.</h1>
+      
+      <SmartLocationInput
+        lat={lat} 
+        lng={lng} 
+        currentAddress={address}
+        onSelect={(lt, ln, addr) => handleLocationChange(lt, ln, addr)}
+      />
+      
+      {/* Increased the margin and shadow for a "bigger" feel */}
+      <div className="mt-6 rounded-3xl border-8 border-white shadow-2xl overflow-hidden md:grow">
+        <OpenStreetMapPlot 
+          lat={lat} 
+          lng={lng} 
+          onLocationChange={(lt, ln) => handleLocationChange(lt, ln)} 
+          providers={dummyProviders}
         />
-        </div>
-        <div>
-
-          
-      {/* 🗺 Map */}
-      <OpenStreetMapPlot  lat={lat} lng={lng} />
-        </div>
+      </div>
+      
+      <p className="mt-4 text-sm text-gray-500 text-center font-medium">
+        📍 Precisely drag the pin to your building for better service.
+      </p>
     </div>
   );
 }
 
-export default Map;
+export default App;
