@@ -1,7 +1,10 @@
 const userModel = require('../models/user.model');
 const providerModel = require('../models/sprovider.model');
+const Otp = require('../models/otp.models')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const sendEmail = require('../config/sendEmail');
+const getModelByRole = require('../utils/getModelByRole');
 
 
 async function registerUser(req, res) {
@@ -154,4 +157,73 @@ function logOut(req,res){
     res.status(200).json({ message: 'User logged out successfully' });
 }
 
-module.exports = {registerUser, loginUser, registerProvider,loginProvider,logOut};
+
+async function handleForgotPassword(req, res) {
+  const { email, role } = req.body;
+
+  const Model = getModelByRole(role);
+  if (!Model) {
+    return res.status(400).json({ message: "Invalid role" });
+  }
+
+  const account = await Model.findOne({ email });
+  if (!account) {
+    return res.status(404).json({ message: "Account does not exist" });
+  }
+
+  const otp = Math.floor(100000 + Math.random() * 900000);
+  console.log(otp)
+  await Otp.create({ email, role, otp });
+
+  await sendEmail(
+    email,
+    "Reset Password",
+    `Your OTP for password reset is ${otp}`
+  );
+
+  res.status(200).json({ message: "OTP sent to email" });
+}
+
+
+async function handleVerifyOtp(req,res) {
+    const {email,otp} = req.body;
+
+    const otprecord = await Otp.findOne({email,otp});
+    if(!otprecord||Date.now()>otprecord.createdAt.getTime+60*60*1000)
+    {
+        res.status(400).json({message:"invalid or expired Otp"});
+    }
+    res.status(200).json({message:"Otp Verification successful"});
+}
+
+async function handleResetPassword(req, res) {
+  const { email, role, otp, newPassword } = req.body;
+
+  const otprecord = await Otp.findOne({ email, role, otp });
+  if (
+    !otprecord ||
+    Date.now() > otprecord.createdAt.getTime() + 60 * 60 * 1000
+  ) {
+    return res.status(400).json({ message: "Invalid or expired OTP" });
+  }
+
+  const Model = getModelByRole(role);
+  if (!Model) {
+    return res.status(400).json({ message: "Invalid role" });
+  }
+
+  const account = await Model.findOne({ email });
+  if (!account) {
+    return res.status(404).json({ message: "Account not found" });
+  }
+
+  account.password = await bcrypt.hash(newPassword, 10);
+  await account.save();
+
+  await Otp.deleteMany({ email, role });
+
+  res.status(200).json({ message: "Password reset successful" });
+}
+
+
+module.exports = {registerUser, loginUser, registerProvider,loginProvider,logOut,handleForgotPassword,handleVerifyOtp,handleResetPassword};
