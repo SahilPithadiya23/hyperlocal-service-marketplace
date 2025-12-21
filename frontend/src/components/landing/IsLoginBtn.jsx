@@ -14,8 +14,8 @@ const IsLoginBtn = () => {
         ...user,
         isAuth: false,
       });
-      await axios.get(
-        "http://localhost:3000/api/auth/user/logout",
+      await axios.post(
+        "http://localhost:3000/api/auth/logout",
         { withCredentials: true }
       );
 

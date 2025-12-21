@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import OpenStreetMapPlot from "../components/OpenStreetMapPlot";
-import LocationSearch from "../components/LocationSearch";
 import SmartLocationInput from "../components/SmartLocationInput";
 function App() {
   const [lat, setLat] = useState(23.0225); // Default Ahmedabad
