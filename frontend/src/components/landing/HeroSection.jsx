@@ -113,9 +113,9 @@ const HeroSection = ({ onSearch }) => {
               h-10 sm:h-12
               px-5 sm:px-8
               rounded-xl
-              bg-blue-700
+              bg-blue-600
               font-medium
-              hover:font-bold hover:bg-blue-800 hover:cursor-pointer
+              hover:font-bold hover:bg-blue-700 hover:cursor-pointer
               transition
               
             "

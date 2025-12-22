@@ -91,7 +91,7 @@ const SlidesSection = () => {
                 <img
                   src={slide.image}
                   alt={slide.title}
-                  className="w-full h-full object-cover opacity-60"
+                  className="w-full h-full object-cover opacity-78"
                 />
 
                 {/* Content Overlay */}

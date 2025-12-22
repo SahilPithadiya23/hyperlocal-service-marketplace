@@ -9,6 +9,8 @@ import ProtectRouter from './router/ProtectRouter'
 import SProtectRouter from './router/SProtectRouter'
 import Sprofile from './pages/Sprofile'
 import Map from './pages/Map';
+import ForgotPassword from './pages/ForgotPassword';
+import UserProfile from './pages/UserProfile';
 const App = () => {
   return (
     <>
@@ -19,6 +21,11 @@ const App = () => {
         <Map/>
         </ProtectRouter>
         } />
+      <Route path="/profile" element={
+        <ProtectRouter>
+          <UserProfile/>
+        </ProtectRouter>
+      }/>
       <Route path="/Sprofile" element={<SProtectRouter>
         <Sprofile/>
         </SProtectRouter>
@@ -27,6 +34,7 @@ const App = () => {
       <Route path="/user-signup" element={<UserSignUp />} />
       <Route path="/service-provider-login" element={<ServiceProviderLogin />} />
       <Route path="/user-login" element={<UserLogin />} />
+      <Route path="/forgot-password" element={<ForgotPassword/>}></Route>
     </Routes>
     </>
   )

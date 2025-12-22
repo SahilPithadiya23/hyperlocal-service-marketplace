@@ -11,7 +11,7 @@ const SmartLocationInput = ({ lat, lng, onSelect, currentAddress }) => {
     }
   }, [currentAddress]);
 
-  // 🚀 REPLACE handleSearch WITH THIS
+  //  REPLACE handleSearch WITH THIS
   const handleSearch = async (val) => {
     setQuery(val);
     if (val.length > 3) {

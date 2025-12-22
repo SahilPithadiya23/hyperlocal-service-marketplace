@@ -48,10 +48,15 @@ const ServiceProviderLogin = () => {
             placeholder="Enter email"
             className="border p-2 rounded w-full mb-4"
           />
-         
+         <div className="flex items-center justify-between mb-1">
           <h3 className="text-lg font-semibold mb-1">
             Password
           </h3>
+           <Link to="/forgot-password" className="text-blue-600 text-sm hover:underline">
+                        Forgot password?
+                      </Link>
+          </div>
+          
           <input
             type="password"
             value={password}
