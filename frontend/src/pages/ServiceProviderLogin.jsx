@@ -20,7 +20,7 @@ const ServiceProviderLogin = () => {
     if(response.status === 200){
       const data = response.data;
       setProvider(data.provider);
-      navigate('/profile');
+      navigate('/Sprofile');
     }  
   }catch(err){
     setError(err.response.data.message);
@@ -52,7 +52,7 @@ const ServiceProviderLogin = () => {
           <h3 className="text-lg font-semibold mb-1">
             Password
           </h3>
-           <Link to="/forgot-password" className="text-blue-600 text-sm hover:underline">
+           <Link to="/forgot-password" state={{ email: email, role: 'provider' }} className="text-blue-600 text-sm hover:underline">
                         Forgot password?
                       </Link>
           </div>

@@ -1,46 +1,50 @@
 import React, { useContext } from "react";
 import { UserDataContext } from "../../context/UserContext";
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, LogIn } from "lucide-react";
+import { LogOut, LogIn, User } from "lucide-react";
 import axios from "axios";
 
 const IsLoginBtn = () => {
   const { user, setUser } = useContext(UserDataContext);
   const navigate = useNavigate();
 
-  const logOutHandler = async () => {
-    try {
-      setUser({
-        ...user,
-        isAuth: false,
-      });
-      await axios.post(
-        "http://localhost:3000/api/auth/logout",
-        { withCredentials: true }
-      );
+const handleLogout = async () => {
+  try {
+    navigate("/", { replace: true });
 
-      navigate("/");
-    } catch (error) {
-      console.error("Logout failed", error);
-    }
-  };
+    setUser({
+      isAuth: false,
+      loading: false,
+      profile: null,
+    });
+
+    await axios.post(
+      "http://localhost:3000/api/auth/logout",
+      {},                       // ✅ body
+      { withCredentials: true } // ✅ config
+    );
+  } catch (error) {
+    console.error("Logout failed", error);
+  }
+};
 
   return (
     <>
-      {user?.isAuth ? (
-        <button
-          onClick={logOutHandler}
-          className="hover:cursor-pointer px-5 py-2 rounded-lg bg-gray-600 text-white font-medium hover:bg-gray-700 transition"
-        >
-          <LogOut className="inline-block mr-2" size={16} />
-          Logout
-        </button>
+      {user.isAuth ? (
+        <div className="flex items-center gap-4">
+          <Link to="/profile" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100">
+            <User className="w-5 h-5 text-black fill-black" />
+            <span className="font-medium text-gray-700">{user.profile?.name || "My Profile"}</span>
+          </Link>
+          <button onClick={handleLogout} className="px-3 py-2 text-red-600 hover:bg-gray-100 rounded-lg flex items-center gap-2">
+            <LogOut size={16} /> Logout
+          </button>
+        </div>
       ) : (
         <Link
           to="/user-login"
-          className="px-5 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+          className="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
         >
-          <LogIn className="inline-block mr-2" size={16} />
           Login
         </Link>
       )}

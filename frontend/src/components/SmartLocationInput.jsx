@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+
 const SmartLocationInput = ({ lat, lng, onSelect, currentAddress }) => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
@@ -11,7 +11,7 @@ const SmartLocationInput = ({ lat, lng, onSelect, currentAddress }) => {
     }
   }, [currentAddress]);
 
-  //  REPLACE handleSearch WITH THIS
+  // 🚀 REPLACE handleSearch WITH THIS
   const handleSearch = async (val) => {
     setQuery(val);
     if (val.length > 3) {
@@ -37,17 +37,15 @@ const SmartLocationInput = ({ lat, lng, onSelect, currentAddress }) => {
       }
     } else {
       setResults([]);
-    }
+    } 
   };
 
   return (
-    
     <div className="w-full relative">
-                   <Search  className="absolute  right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 z-10" />
-
+      <label className="block text-sm font-medium text-gray-700 mb-1">Your Delivery/Service Location</label>
       <input
         type="text"
-        className="w-full p-3  border-2 border-blue-100 rounded-xl focus:border-blue-500 outline-none transition"
+        className="w-full p-3 border-2 border-blue-100 rounded-xl focus:border-blue-500 outline-none transition"
         placeholder="gh 5 gandhinagar"
         value={query}
         onChange={(e) => handleSearch(e.target.value)}
@@ -70,7 +68,6 @@ const SmartLocationInput = ({ lat, lng, onSelect, currentAddress }) => {
           ))}
         </ul>
       )}
-      
     </div>
   );
 };

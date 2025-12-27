@@ -69,7 +69,7 @@ const ServiceProviderSignUp = () => {
     if (response.status === 201) {
       const data = response.data;
       setProvider(data.provider);
-      navigate('/profile');
+      navigate('/Sprofile');
     }
   } catch (err) {
     setError(err.response.data.message);

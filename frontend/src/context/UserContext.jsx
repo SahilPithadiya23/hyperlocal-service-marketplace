@@ -8,29 +8,32 @@ const UserContext = ({ children }) => {
     isAuth: false,
     loading: true,
     profile: null,
+    loggingOut: false
   });
 
-  // 🔑 Restore auth after reload
-  useEffect(() => {
-    axios
-      .get("http://localhost:3000/api/home/user/profile", {
-        withCredentials: true,
-      })
-      .then((res) => {
-        setUser({
-          isAuth: true,
-          loading: false,
-          profile: res.data.user,
-        });
-      })
-      .catch(() => {
-        setUser({
-          isAuth: false,
-          loading: false,
-          profile: null,
-        });
-      });
-  }, []);
+ 
+useEffect(() => {
+  axios
+    .get("http://localhost:3000/api/home/user/profile", {
+      withCredentials: true,
+    })
+    .then((res) => {
+      setUser(prev => ({
+        ...prev,
+        isAuth: true,
+        loading: false,
+        profile: res.data.user,
+      }));
+    })
+    .catch(() => {
+      setUser(prev => ({
+        ...prev,
+        isAuth: false,
+        loading: false,
+        profile: null,
+      }));
+    });
+}, []);
 
   return (
     <UserDataContext.Provider value={{ user, setUser }}>

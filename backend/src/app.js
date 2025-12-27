@@ -2,6 +2,9 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/auth.routes');
 const homeRoutes = require('./routes/home.routes');
+const userRoutes = require('./routes/user.routes')
+const providerRoutes = require('./routes/provider.routes')
+const path = require('path');
 const cors = require('cors');
 const app = express();
 app.use(cors({
@@ -11,9 +14,11 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
+app.use('/uploads', express.static(path.join(__dirname, "../uploads")));
 app.use('/api/auth', authRoutes);
 app.use('/api/home', homeRoutes);
-
+app.use('/api/user',userRoutes);
+app.use('/api/provider',providerRoutes);
 app.get('/', (req, res) => {    
     res.send('Hello World!');
 });

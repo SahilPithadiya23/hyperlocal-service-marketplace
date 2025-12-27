@@ -1,4 +1,3 @@
-
 import { Navigate, useLocation } from "react-router-dom";
 import { useContext } from "react";
 import { UserDataContext } from "../context/UserContext";
@@ -6,6 +5,9 @@ import { UserDataContext } from "../context/UserContext";
 const ProtectRouter = ({ children }) => {
   const { user } = useContext(UserDataContext);
   const location = useLocation();
+
+  
+
 
   if (user.loading) {
     return <p>Checking authentication...</p>;
@@ -16,6 +18,7 @@ const ProtectRouter = ({ children }) => {
       <Navigate
         to="/user-login"
         state={{ from: location }}
+        replace
       />
     );
   }

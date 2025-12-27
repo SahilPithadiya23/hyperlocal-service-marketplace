@@ -10,7 +10,9 @@ import SProtectRouter from './router/SProtectRouter'
 import Sprofile from './pages/Sprofile'
 import Map from './pages/Map';
 import ForgotPassword from './pages/ForgotPassword';
+import VerifyOtp from './pages/VerifyOtp';
 import UserProfile from './pages/UserProfile';
+import ResetPassword from './pages/ResetPassword';
 const App = () => {
   return (
     <>
@@ -35,6 +37,8 @@ const App = () => {
       <Route path="/service-provider-login" element={<ServiceProviderLogin />} />
       <Route path="/user-login" element={<UserLogin />} />
       <Route path="/forgot-password" element={<ForgotPassword/>}></Route>
+      <Route path="/verify-otp" element={<VerifyOtp/>}></Route>
+      <Route path="/reset-password" element={<ResetPassword/>}></Route>
     </Routes>
     </>
   )

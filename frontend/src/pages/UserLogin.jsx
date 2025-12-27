@@ -62,7 +62,8 @@ const UserLogin = () => {
           <h3 className="text-lg font-semibold mb-1">
             Password
           </h3>
-          <Link to="/forgot-password" className="text-blue-600 text-sm hover:underline">
+          <Link to="/forgot-password"   state={{ email: email, role: 'user' }}
+  className="text-blue-600 text-sm hover:underline">
               Forgot password?
             </Link>
             </div>

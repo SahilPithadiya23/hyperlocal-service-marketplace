@@ -32,7 +32,7 @@ const serviceProviderSchema = new mongoose.Schema({
         required: true,
     },
     experience: {
-        type: Number,  
+        type: Number,
         required: true,
     },
     address: {
@@ -49,7 +49,28 @@ const serviceProviderSchema = new mongoose.Schema({
     },
     long: {
         type: Number,
+    },
+    isAvailable: {
+        type: Boolean,
+        default: true
+    },
+    profileImage: {
+        type: String,
+    },
+    averageRating: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5
+    },
+
+    totalReviews: {
+        type: Number,
+        default: 0,
+        min: 0
     }
+
+
 
 }, { timestamps: true });
 
