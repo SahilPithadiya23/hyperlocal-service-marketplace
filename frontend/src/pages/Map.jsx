@@ -27,8 +27,8 @@ function Map() {
     
   }, [])
   
-    
-
+    // console.log(lat,lng);
+  // console.log(providers);
 
   const handleLocationChange = async (newLat, newLng, manualAddress = null) => {
     setLat(newLat);

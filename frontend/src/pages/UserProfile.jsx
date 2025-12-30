@@ -1,11 +1,31 @@
-import React, { useContext } from "react";
+import React, { useContext,useState } from "react";
 import { Link } from "react-router-dom";
 import { UserDataContext } from "../context/UserContext";
 import ProfileNavbar from "../components/profile/UserNavbar";
+import AddReviewForm from "../components/profile/AddReviewForm";
+import ReviewSection from "../components/profile/ReviewSection";
 import { Mail, Phone, MapPin, Calendar, Clock,Pencil } from "lucide-react";
 import axios from "axios";
 const UserProfile = () => {
   const { user } = useContext(UserDataContext);
+
+
+  const [reviews, setReviews] = useState([
+    {
+      id: 1,
+      serviceName: "Home Cleaning",
+      providerName: "CleanPro Services",
+      rating: 5,
+      comment: "Excellent service! Very professional.",
+      date: "Dec 18, 2024",
+      helpful: 12,
+    },
+  ]);
+
+  /* 🔥 This connects form → review list */
+  const handleReviewSubmit = (newReview) => {
+    setReviews((prev) => [newReview, ...prev]);
+  };
 
   const profile = {
     name: `${user?.profile?.firstName} ${user?.profile?.lastName}`,
@@ -157,7 +177,7 @@ const UserProfile = () => {
             </div>
           </div>
 
-          <div className="text-center mt-6">
+          <div className="text-center mb-6">
             <Link
               to="/"
               className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
@@ -166,6 +186,12 @@ const UserProfile = () => {
             </Link>
           </div>
         </div>
+      </div>
+    <div className="max-w-5xl mx-auto px-4 pb-6 space-y-4">
+        <AddReviewForm onReviewSubmit={handleReviewSubmit} />
+      </div>
+      <div className="max-w-5xl mx-auto px-4 pb-6 space-y-4">
+        <ReviewSection reviews={reviews} />
       </div>
     </div>
   );

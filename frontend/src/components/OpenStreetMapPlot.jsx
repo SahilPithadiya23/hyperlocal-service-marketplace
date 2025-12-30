@@ -1,6 +1,7 @@
 
 
 import React, { useMemo, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -54,7 +55,7 @@ function DraggableMarker({ position, onLocationChange }) {
 const OpenStreetMapPlot = ({ lat, lng, onLocationChange, providers = [], service }) => {
   const centerPosition = [lat, lng];
   const RADIUS_METERS = 500;
-
+  const navigate = useNavigate(); 
 
   
   // Filter providers that are within the 500m radius
@@ -141,9 +142,16 @@ const OpenStreetMapPlot = ({ lat, lng, onLocationChange, providers = [], service
                   </p>
                 )}
 
-                <button className=" text-sm mt-2 bg-blue-500 text-white  px-2 py-0.5 w-full cursor-pointer rounded">
-                  view
-                </button>
+               <button
+                  onClick={() =>
+                    navigate("/service-provider-profile/:providerId", {
+                    state: { providerId: shop._id }
+                    })
+                  }
+                    className="text-sm mt-2 bg-blue-500 text-white px-2 py-0.5 w-full cursor-pointer rounded"
+                >
+  View Profile
+</button>
               </div>
             </Popup>
           </Marker>

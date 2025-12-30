@@ -13,6 +13,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import VerifyOtp from './pages/VerifyOtp';
 import UserProfile from './pages/UserProfile';
 import ResetPassword from './pages/ResetPassword';
+import ServiceProviderP from './pages/ServiceProviderProfileP'
 const App = () => {
   return (
     <>
@@ -32,6 +33,11 @@ const App = () => {
         <Sprofile/>
         </SProtectRouter>
         } />
+         <Route path='/service-provider-profile/:providerId' element={
+          <ProtectRouter>
+            <ServiceProviderP/>
+          </ProtectRouter>
+        }/>
       <Route path="/service-provider-signup" element={<ServiceProviderSignUp />} />
       <Route path="/user-signup" element={<UserSignUp />} />
       <Route path="/service-provider-login" element={<ServiceProviderLogin />} />
