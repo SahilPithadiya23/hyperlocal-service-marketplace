@@ -175,10 +175,10 @@ const UserProfile = () => {
             </div>
           </div>
 
-          <div className="text-center mb-6">
+          <div className="text-center  mt-4">
             <Link
               to="/"
-              className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+              className="inline-block  bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
             >
               Find More Services
             </Link>
