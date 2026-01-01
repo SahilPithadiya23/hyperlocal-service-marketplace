@@ -63,7 +63,7 @@ const OpenStreetMapPlot = ({ lat, lng, onLocationChange, providers = [], service
     const providerLatLng = L.latLng(provider.lat, provider.long);
     const centerLatLng = L.latLng(lat, lng);
     const matchesService =
-      provider.serviceCategory.toLowerCase() === service.toLowerCase();
+      provider.serviceName.toLowerCase() === service.toLowerCase();
 
     if (!matchesService) return false;
     return centerLatLng.distanceTo(providerLatLng) <= RADIUS_METERS;

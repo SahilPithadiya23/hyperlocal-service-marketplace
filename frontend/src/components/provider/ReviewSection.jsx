@@ -3,7 +3,7 @@ import { Star, CheckCircle2, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { tempReviewsData } from "../../data/tempReviewdata";
+import { tempReviewsData } from "../../data/tempReviewData";
 
 /* --------------------
    Rating Bar

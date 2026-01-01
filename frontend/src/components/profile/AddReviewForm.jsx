@@ -32,24 +32,24 @@ const AddReviewForm = ({ onReviewSubmit }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   /* ---------------- Fetch completed services ---------------- */
-  useEffect(() => {
-    const fetchCompletedServices = async () => {
-      try {
-        const res = await axios.get(
-          "http://localhost:5000/api/services/completed",
-          { withCredentials: true }
-        );
+  // useEffect(() => {
+  //   const fetchCompletedServices = async () => {
+  //     try {
+  //       const res = await axios.get(
+  //         "http://localhost:5000/api/services/completed",
+  //         { withCredentials: true }
+  //       );
 
-        if (Array.isArray(res.data) && res.data.length > 0) {
-          setCompletedServices(res.data);
-        }
-      } catch (error) {
-        console.log("Backend unavailable, using static services");
-      }
-    };
+  //       if (Array.isArray(res.data) && res.data.length > 0) {
+  //         setCompletedServices(res.data);
+  //       }
+  //     } catch (error) {
+  //       console.log("Backend unavailable, using static services");
+  //     }
+  //   };
 
-    fetchCompletedServices();
-  }, []);
+  //   fetchCompletedServices();
+  // }, []);
 
   /* ---------------- Helpers ---------------- */
   const resetForm = () => {

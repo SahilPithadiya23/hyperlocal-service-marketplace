@@ -1,10 +1,10 @@
-import React, { useContext,useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { UserDataContext } from "../context/UserContext";
 import ProfileNavbar from "../components/profile/UserNavbar";
 import AddReviewForm from "../components/profile/AddReviewForm";
 import ReviewSection from "../components/profile/ReviewSection";
-import { Mail, Phone, MapPin, Calendar, Clock,Pencil } from "lucide-react";
+import { Mail, Phone, MapPin, Calendar, Clock, Pencil } from "lucide-react";
 import axios from "axios";
 const UserProfile = () => {
   const { user } = useContext(UserDataContext);
@@ -29,10 +29,10 @@ const UserProfile = () => {
 
   const profile = {
     name: `${user?.profile?.firstName} ${user?.profile?.lastName}`,
-    email: user?.profile?.email ,
+    email: user?.profile?.email,
     phone: user?.profile?.phone,
     address: user?.profile?.address,
-    city:user?.profile?.city
+    city: user?.profile?.city
   };
 
 
@@ -45,23 +45,23 @@ const UserProfile = () => {
   };
 
   const handleImageUpload = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+    const file = e.target.files[0];
+    if (!file) return;
 
-  const formData = new FormData();
-  formData.append("profileImage", file);
+    const formData = new FormData();
+    formData.append("profileImage", file);
 
-  try {
-    await axios.post(
-      "http://localhost:3000/api/user/upload-profile",
-      formData,
-      { withCredentials: true }
-    );
-    window.location.reload(); // simple & safe
-  } catch (err) {
-    console.error("Upload failed", err);
-  }
-};
+    try {
+      await axios.post(
+        "http://localhost:3000/api/user/upload-profile",
+        formData,
+        { withCredentials: true }
+      );
+      window.location.reload(); // simple & safe
+    } catch (err) {
+      console.error("Upload failed", err);
+    }
+  };
 
 
   return (
@@ -82,52 +82,50 @@ const UserProfile = () => {
       </section>
 
       {/* Content */}
-      <div className="max-w-5xl mx-auto px-4 -mt-10 pb-12">
+      <div className="max-w-5xl mx-auto px-4 -mt-10 pb-6 space-y-6">
         {/* Profile Card */}
-        <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-md p-6 ">
           <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
-            {/* <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-bold text-blue-600">
-              {profile.name.charAt(0)}
-            </div> */}
-<div className="relative w-24 h-24">
-  {/* Profile Image / Initial */}
-  <div className="w-24 h-24 rounded-full overflow-hidden bg-blue-100 flex items-center justify-center">
-    {user?.profile?.profileImage ? (
-      <img
-        src={`http://localhost:3000/uploads/users/${user.profile.profileImage}`}
-        alt="Profile"
-        className="w-full h-full object-cover"
-      />
-    ) : (
-      <span className="text-3xl font-bold text-blue-600">
-        {profile.name.charAt(0)}
-      </span>
-    )}
-  </div>
 
-  {/* Pencil Button */}
-  <label
-    htmlFor="profileUpload"
-    className="absolute bottom-1 right-1 bg-white p-1.5 rounded-full shadow cursor-pointer hover:bg-gray-100"
-  >
-    <Pencil size={14} className="text-gray-600" />
-  </label>
+            <div className="relative w-24 h-24">
+              {/* Profile Image / Initial */}
+              <div className="w-24 h-24 rounded-full overflow-hidden bg-blue-100 flex items-center justify-center">
+                {user?.profile?.profileImage ? (
+                  <img
+                    src={`http://localhost:3000/uploads/users/${user.profile.profileImage}`}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-3xl font-bold text-blue-600">
+                    {profile.name.charAt(0)}
+                  </span>
+                )}
+              </div>
 
-  {/* Hidden File Input */}
-  <input
-    type="file"
-    id="profileUpload"
-    accept="image/*"
-    className="hidden"
-    onChange={handleImageUpload}
-  />
-</div>
+              {/* Pencil Button */}
+              <label
+                htmlFor="profileUpload"
+                className="absolute bottom-1 right-1 bg-white p-1.5 rounded-full shadow cursor-pointer hover:bg-gray-100"
+              >
+                <Pencil size={14} className="text-gray-600" />
+              </label>
+
+              {/* Hidden File Input */}
+              <input
+                type="file"
+                id="profileUpload"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </div>
 
             <div className="text-center sm:text-left">
+              <p className="text-gray-500">User Account</p>
               <h2 className="text-2xl font-semibold text-gray-800">
                 {profile.name}
               </h2>
-              <p className="text-gray-500">User Account</p>
             </div>
           </div>
 
@@ -187,7 +185,7 @@ const UserProfile = () => {
           </div>
         </div>
       </div>
-    <div className="max-w-5xl mx-auto px-4 pb-6 space-y-4">
+      <div className="max-w-5xl mx-auto px-4 pb-6 space-y-4">
         <AddReviewForm onReviewSubmit={handleReviewSubmit} />
       </div>
       <div className="max-w-5xl mx-auto px-4 pb-6 space-y-4">

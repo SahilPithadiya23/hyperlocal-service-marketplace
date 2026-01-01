@@ -19,7 +19,7 @@ const StarRating = ({ rating }) => (
   <div className="flex items-center gap-0.5">
     {[1, 2, 3, 4, 5].map((star) => (
       <Star
-        key={star}
+        key={star._id} 
         size={16}
         className={
           star <= rating
@@ -56,22 +56,22 @@ const ReviewCard = ({ review }) => (
 const ReviewSection = ({ reviews: liveReviews }) => {
   const [reviews, setReviews] = useState(staticReviews);
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const res = await axios.get(
-          "http://localhost:5000/api/reviews/my",
-          { withCredentials: true }
-        );
-        if (Array.isArray(res.data)) {
-          setReviews(res.data);
-        }
-      } catch {
-        console.log("Using static reviews");
-      }
-    };
-    fetchReviews();
-  }, []);
+  // useEffect(() => {
+  //   const fetchReviews = async () => {
+  //     try {
+  //       const res = await axios.get(
+  //         "http://localhost:5000/api/reviews/my",
+  //         { withCredentials: true }
+  //       );
+  //       if (Array.isArray(res.data)) {
+  //         setReviews(res.data);
+  //       }
+  //     } catch {
+  //       console.log("Using static reviews");
+  //     }
+  //   };
+  //   fetchReviews();
+  // }, []);
 
   /*  THIS MAKES IT REAL-TIME */
   const mergedReviews = [...liveReviews, ...reviews];
