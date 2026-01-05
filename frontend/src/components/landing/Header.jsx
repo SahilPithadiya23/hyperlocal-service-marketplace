@@ -4,34 +4,16 @@
 
 
 import { useContext, useState } from "react";
-import { Menu, X, MapPin, User, LogOut } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, MapPin } from "lucide-react";
+import { Link } from "react-router-dom";
 import { UserDataContext } from "../../context/UserContext";
 import IsLoginBtn from "./IsLoginBtn";
 
 const Header = () => {
   const { user, setUser } = useContext(UserDataContext);
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      await fetch("http://localhost:3000/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-
-      setUser({
-        isAuth: false,
-        loading: false,
-        profile: null,
-      });
-
-      navigate("/user-login");
-    } catch (err) {
-      console.error("Logout failed", err);
-    }
-  };
+  
+  
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">

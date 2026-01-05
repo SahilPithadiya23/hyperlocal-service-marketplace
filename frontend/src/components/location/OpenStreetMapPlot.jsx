@@ -2,7 +2,7 @@
 
 import React, { useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -100,12 +100,7 @@ const OpenStreetMapPlot = ({ lat, lng, onLocationChange, providers = [], service
         {/* User's Draggable Marker */}
         <DraggableMarker position={centerPosition} onLocationChange={onLocationChange} />
 
-        {/* Visual Radius Circle */}
-        <Circle
-          center={centerPosition}
-          radius={RADIUS_METERS}
-          pathOptions={{ color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.1 }}
-        />
+        
 
         {/* Render Nearby Providers */}
         {nearbyProviders.map((shop) => (
@@ -118,7 +113,7 @@ const OpenStreetMapPlot = ({ lat, lng, onLocationChange, providers = [], service
               <div className="p-1">
                 <div className="flex flex-col items-center mb-2">
 
-                
+                {console.log(shop.profileImage)}
                 <img src={`http://localhost:3000/uploads/providers/${shop.profileImage}`}alt="profileImage" className="h-16 w-16 rounded-full" />
 
                 <h3 className="font-bold text-sm text-blue-600">{shop.firstName} {shop.lastName}</h3>

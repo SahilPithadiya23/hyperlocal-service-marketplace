@@ -1,5 +1,3 @@
-
-
 import React, { useContext, useEffect, useState } from "react";
 import OpenStreetMapPlot from "../components/OpenStreetMapPlot";
 import SmartLocationInput from "../components/SmartLocationInput";
@@ -17,7 +15,7 @@ function Map() {
   const [address, setAddress] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile toggle state
   const location = useLocation();
-  const [service, setService] = useState(location.state?.query || '');
+  const [service, setService] = useState(location.state?.query||"plumber");
   const [providers, setProviders] = useState([]);
   useEffect(() => {
      axios.get('http://localhost:3000/api/user/getallproviders',{withCredentials:true})

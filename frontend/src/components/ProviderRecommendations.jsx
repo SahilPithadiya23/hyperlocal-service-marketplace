@@ -20,7 +20,7 @@ const SERVICES = [
 
 const ProviderRecommendations = ({ onServiceSelect,setOnServiceSelect }) => {
   
-  const [selectedService, setSelectedService] = useState(onServiceSelect);
+  const [selectedService, setSelectedService] = useState(onServiceSelect||"Plumber");
 
   const handleServiceClick = (service) => {
     // Toggle selection: if clicking the same one, clear it; otherwise, select new.

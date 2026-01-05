@@ -3,8 +3,9 @@ import {
   Camera, Utensils, Home, Car, Hammer, Flower2
 } from "lucide-react";
 
+
 const categories = [
-  { name: "Plumbing", icon: Wrench, color: "bg-blue-500/10 text-blue-600" },
+  { name: "Plumber", icon: Wrench, color: "bg-blue-500/10 text-blue-600" },
   { name: "Electrical", icon: Zap, color: "bg-yellow-500/10 text-yellow-600" },
   { name: "Painting", icon: Paintbrush, color: "bg-pink-500/10 text-pink-600" },
   { name: "Cleaning", icon: Sparkles, color: "bg-cyan-500/10 text-cyan-600" },
