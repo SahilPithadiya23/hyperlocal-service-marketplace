@@ -4,6 +4,7 @@ const authRoutes = require('./routes/auth.routes');
 const homeRoutes = require('./routes/home.routes');
 const userRoutes = require('./routes/user.routes')
 const providerRoutes = require('./routes/provider.routes')
+const reviewRoutes = require('./routes/review.routes');
 const path = require('path');
 const cors = require('cors');
 const app = express();
@@ -19,6 +20,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/home', homeRoutes);
 app.use('/api/user',userRoutes);
 app.use('/api/provider',providerRoutes);
+app.use('/api/review', reviewRoutes);
 app.get('/', (req, res) => {    
     res.send('Hello World!');
 });
