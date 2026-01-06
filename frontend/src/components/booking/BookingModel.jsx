@@ -1,169 +1,319 @@
 import { useState } from "react";
+import {
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  Calendar,
+  Clock,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight, ChevronLeft, Check, Calendar, Clock, MapPin, CreditCard } from "lucide-react";
+import axios from "axios";
 
-// Time slots (static fallback)
-const availableTimeSlots = [
+/* ------------------ static data ------------------ */
+const timeSlots = [
   { id: 1, time: "10:00 AM", available: true },
   { id: 2, time: "11:00 AM", available: true },
   { id: 3, time: "12:00 PM", available: false },
 ];
 
-// Booking steps
-const steps = [
-  { id: "service", label: "Service", icon: Check },
-  { id: "datetime", label: "Date & Time", icon: Calendar },
-  { id: "address", label: "Address", icon: MapPin },
-  { id: "summary", label: "Confirm", icon: CreditCard },
-];
+const steps = ["service", "datetime", "address", "summary"];
+const today = new Date().toISOString().split("T")[0];
 
 export default function BookingModel({ isOpen, onClose, provider }) {
-  const [currentStep, setCurrentStep] = useState("service");
-  const [bookingData, setBookingData] = useState({
-    service: null,
+  const [step, setStep] = useState("service");
+  const [issue, setIssue] = useState("");
+
+  const [booking, setBooking] = useState({
     date: "",
     timeSlot: null,
-    address: { street: "", apartment: "", city: "", zipCode: "" },
+    address: {
+      street: "",
+      apartment: "",
+      city: "",
+      zipCode: "",
+    },
   });
 
-  if (!isOpen) return null;
+  const stepIndex = steps.indexOf(step);
 
-  const currentStepIndex = steps.findIndex((s) => s.id === currentStep);
-
-  const handleNext = () => {
-    const order = ["service", "datetime", "address", "summary"];
-    const idx = order.indexOf(currentStep);
-    if (idx < order.length - 1) setCurrentStep(order[idx + 1]);
-  };
-
-  const handleBack = () => {
-    const order = ["service", "datetime", "address", "summary"];
-    const idx = order.indexOf(currentStep);
-    if (idx > 0) setCurrentStep(order[idx - 1]);
-  };
-
-  const handleConfirmBooking = () => {
-    alert(`Booking Confirmed! ${bookingData.service?.name} with ${provider.name}`);
-    onClose();
-    setCurrentStep("service");
-    setBookingData({ service: null, date: "", timeSlot: null, address: { street: "", apartment: "", city: "", zipCode: "" } });
-  };
-
+  /* ------------------ validation ------------------ */
   const canProceed = () => {
-    switch (currentStep) {
-      case "service": return bookingData.service !== null;
-      case "datetime": return bookingData.date && bookingData.timeSlot;
-      case "address": return bookingData.address.street && bookingData.address.city && bookingData.address.zipCode;
-      default: return true;
+    if (step === "service") return issue.trim().length > 0;
+
+    if (step === "datetime")
+      return booking.date && booking.timeSlot;
+
+    if (step === "address")
+      return (
+        booking.address.street.trim() &&
+        booking.address.city.trim() &&
+        booking.address.zipCode.trim()
+      );
+
+    return true;
+  };
+
+  const next = () => canProceed() && setStep(steps[stepIndex + 1]);
+  const back = () => stepIndex > 0 && setStep(steps[stepIndex - 1]);
+
+  /* ------------------ confirm booking ------------------ */
+  const confirmBooking = async () => {
+    try {
+      await axios.post("http://localhost:5000/api/bookings", {
+        providerId: provider.id,
+        issueDescription: issue,
+        visitingCost: provider.visitingCost,
+        date: booking.date,
+        time: booking.timeSlot.time,
+        address: booking.address,
+      });
+
+      alert("✅ Booking Confirmed");
+
+      // reset
+      setStep("service");
+      setIssue("");
+      setBooking({
+        date: "",
+        timeSlot: null,
+        address: { street: "", apartment: "", city: "", zipCode: "" },
+      });
+
+      onClose();
+    } catch {
+      alert("❌ Booking failed");
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }} 
-        animate={{ opacity: 1, scale: 1 }} 
-        exit={{ opacity: 0, scale: 0.95 }} 
-        className="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl shadow-lg p-6"
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="bg-white w-full max-w-md rounded-2xl shadow-lg p-5"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4 border-b pb-2">
-          <h2 className="text-xl font-bold">Book Service</h2>
-          <button onClick={onClose} className="text-gray-600 hover:text-gray-800"><X className="w-5 h-5" /></button>
+        {/* header */}
+        <div className="flex justify-between items-center border-b pb-2 mb-4">
+          <h2 className="text-lg font-bold">Book Service</h2>
+          <button onClick={onClose}>
+            <X />
+          </button>
         </div>
 
-        {/* Steps */}
-        <div className="flex items-center justify-between mb-4">
-          {steps.map((s, idx) => (
-            <div key={s.id} className="flex items-center flex-1">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${idx < currentStepIndex ? 'bg-green-500 text-white' : idx === currentStepIndex ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
-                {idx < currentStepIndex ? <Check className="w-4 h-4"/> : idx+1}
+        {/* stepper */}
+        <div className="flex items-center mb-5">
+          {steps.map((s, i) => (
+            <div key={s} className="flex items-center flex-1">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                  i < stepIndex
+                    ? "bg-green-500 text-white"
+                    : i === stepIndex
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-500"
+                }`}
+              >
+                {i < stepIndex ? <Check size={14} /> : i + 1}
               </div>
-              {idx < steps.length -1 && <div className={`flex-1 h-0.5 ${idx < currentStepIndex ? 'bg-green-500' : 'bg-gray-200'}`}></div>}
+              {i < steps.length - 1 && (
+                <div className="flex-1 h-0.5 bg-gray-200 mx-1" />
+              )}
             </div>
           ))}
         </div>
 
-        {/* Step Content */}
+        {/* ---------------- step content ---------------- */}
         <AnimatePresence mode="wait">
-          {currentStep === "service" && (
-            <motion.div key="service" initial={{opacity:0,x:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-20}} className="space-y-3">
-              <h3 className="font-semibold">Select a Service</h3>
-              {provider.services.map((s) => (
-                <div key={s.id} className={`p-3 border rounded cursor-pointer ${bookingData.service?.id===s.id?'border-blue-600 bg-blue-50':'hover:bg-gray-50'}`} onClick={()=>setBookingData({...bookingData, service:s})}>
-                  <div className="flex justify-between">
-                    <div>
-                      <div className="font-medium">{s.name}</div>
-                      <div className="text-sm text-gray-500">{s.duration}</div>
-                    </div>
-                    <div className="font-bold">₹{s.price}</div>
-                  </div>
-                </div>
-              ))}
+          {/* STEP 1 */}
+          {step === "service" && (
+            <motion.div className="space-y-3">
+              <div className="p-3 rounded-lg border bg-blue-50 text-sm">
+                Visiting Cost: <b>₹{provider.visitingCost}</b>
+              </div>
+              <textarea
+                value={issue}
+                onChange={(e) => setIssue(e.target.value)}
+                placeholder="Describe your issue"
+                className="w-full border rounded-lg p-2 h-28"
+              />
             </motion.div>
           )}
 
-          {currentStep === "datetime" && (
-            <motion.div key="datetime" initial={{opacity:0,x:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-20}} className="space-y-4">
-              <div>
-                <label className="font-semibold flex items-center gap-2"><Calendar className="w-4 h-4"/> Select Date</label>
-                <input type="date" className="w-full border p-2 rounded mt-1" value={bookingData.date} onChange={e=>setBookingData({...bookingData, date:e.target.value})}/>
-              </div>
-              <div>
-                <label className="font-semibold flex items-center gap-2"><Clock className="w-4 h-4"/> Select Time</label>
-                <div className="grid grid-cols-3 gap-2 mt-1">
-                  {availableTimeSlots.map(t => (
-                    <button key={t.id} disabled={!t.available} className={`p-2 rounded border ${bookingData.timeSlot?.id===t.id?'bg-blue-600 text-white':'hover:bg-gray-100'}`} onClick={()=>setBookingData({...bookingData,timeSlot:t})}>{t.time}</button>
-                  ))}
-                </div>
+          {/* STEP 2 */}
+          {step === "datetime" && (
+            <motion.div className="space-y-4">
+              <label className="text-sm font-medium flex gap-1 items-center">
+                <Calendar size={14} /> Date
+              </label>
+              <input
+                type="date"
+                min={today}
+                className="w-full border rounded p-2"
+                value={booking.date}
+                onChange={(e) =>
+                  setBooking({ ...booking, date: e.target.value })
+                }
+              />
+
+              <label className="text-sm font-medium flex gap-1 items-center">
+                <Clock size={14} /> Time
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {timeSlots.map((t) => (
+                  <button
+                    key={t.id}
+                    disabled={!t.available}
+                    onClick={() =>
+                      setBooking({ ...booking, timeSlot: t })
+                    }
+                    className={`p-2 rounded border text-sm ${
+                      booking.timeSlot?.id === t.id
+                        ? "bg-blue-600 text-white"
+                        : "hover:bg-gray-50"
+                    }`}
+                  >
+                    {t.time}
+                  </button>
+                ))}
               </div>
             </motion.div>
           )}
 
-          {currentStep === "address" && (
-            <motion.div key="address" initial={{opacity:0,x:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-20}} className="space-y-3">
-              <div>
-                <label className="font-semibold">Street *</label>
-                <input type="text" className="w-full border p-2 rounded" value={bookingData.address.street} onChange={e=>setBookingData({...bookingData,address:{...bookingData.address,street:e.target.value}})} />
-              </div>
-              <div>
-                <label className="font-semibold">Apartment</label>
-                <input type="text" className="w-full border p-2 rounded" value={bookingData.address.apartment} onChange={e=>setBookingData({...bookingData,address:{...bookingData.address,apartment:e.target.value}})} />
-              </div>
+          {/* STEP 3 – ADDRESS (FIXED) */}
+          {step === "address" && (
+            <motion.div className="space-y-2">
+              <input
+                placeholder="Street *"
+                className="w-full border rounded p-2"
+                value={booking.address.street}
+                onChange={(e) =>
+                  setBooking({
+                    ...booking,
+                    address: {
+                      ...booking.address,
+                      street: e.target.value,
+                    },
+                  })
+                }
+              />
+
+              <input
+                placeholder="Apartment"
+                className="w-full border rounded p-2"
+                value={booking.address.apartment}
+                onChange={(e) =>
+                  setBooking({
+                    ...booking,
+                    address: {
+                      ...booking.address,
+                      apartment: e.target.value,
+                    },
+                  })
+                }
+              />
+
               <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="font-semibold">City *</label>
-                  <input type="text" className="w-full border p-2 rounded" value={bookingData.address.city} onChange={e=>setBookingData({...bookingData,address:{...bookingData.address,city:e.target.value}})} />
-                </div>
-                <div>
-                  <label className="font-semibold">ZIP *</label>
-                  <input type="text" className="w-full border p-2 rounded" value={bookingData.address.zipCode} onChange={e=>setBookingData({...bookingData,address:{...bookingData.address,zipCode:e.target.value}})} />
-                </div>
+                <input
+                  placeholder="City *"
+                  className="border rounded p-2"
+                  value={booking.address.city}
+                  onChange={(e) =>
+                    setBooking({
+                      ...booking,
+                      address: {
+                        ...booking.address,
+                        city: e.target.value,
+                      },
+                    })
+                  }
+                />
+                <input
+                  placeholder="ZIP *"
+                  className="border rounded p-2"
+                  value={booking.address.zipCode}
+                  onChange={(e) =>
+                    setBooking({
+                      ...booking,
+                      address: {
+                        ...booking.address,
+                        zipCode: e.target.value,
+                      },
+                    })
+                  }
+                />
               </div>
             </motion.div>
           )}
 
-          {currentStep === "summary" && (
-            <motion.div key="summary" initial={{opacity:0,x:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-20}} className="space-y-3">
+          {/* STEP 4 – SUMMARY (FIXED) */}
+          {step === "summary" && (
+            <motion.div className="space-y-3">
               <h3 className="font-semibold">Booking Summary</h3>
-              <div className="p-3 border rounded space-y-2">
-                <div className="flex justify-between"><span>Service</span><span>{bookingData.service?.name}</span></div>
-                <div className="flex justify-between"><span>Date</span><span>{bookingData.date}</span></div>
-                <div className="flex justify-between"><span>Time</span><span>{bookingData.timeSlot?.time}</span></div>
-                <div className="flex justify-between"><span>Address</span><span>{bookingData.address.street} {bookingData.address.apartment}, {bookingData.address.city}, {bookingData.address.zipCode}</span></div>
+
+              <div className="p-3 border rounded space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Issue</span>
+                  <span className="text-right">{issue}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Date</span>
+                  <span>{booking.date}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Time</span>
+                  <span>{booking.timeSlot?.time}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Address</span>
+                  <span className="text-right">
+                    {booking.address.street}
+                    {booking.address.apartment && `, ${booking.address.apartment}`}
+                    <br />
+                    {booking.address.city} - {booking.address.zipCode}
+                  </span>
+                </div>
               </div>
-              <div className="p-3 border rounded bg-blue-50 flex justify-between items-center">
+
+              <div className="p-3 border rounded bg-blue-50 flex justify-between">
                 <span className="font-semibold">Total</span>
-                <span className="font-bold">₹{bookingData.service?.price}</span>
+                <span className="font-bold">
+                  ₹{provider.visitingCost}
+                </span>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Footer */}
-        <div className="flex gap-2 mt-4">
-          {currentStep!=="service" && <button onClick={handleBack} className="flex-1 py-2 px-3 border rounded flex items-center justify-center gap-1"><ChevronLeft className="w-4 h-4"/> Back</button>}
-          {currentStep==="summary" ? <button onClick={handleConfirmBooking} className="flex-1 py-2 px-3 bg-blue-600 text-white rounded">Confirm</button> : <button onClick={handleNext} disabled={!canProceed()} className="flex-1 py-2 px-3 bg-blue-100 disabled:opacity-50 rounded flex items-center justify-center gap-1">Continue <ChevronRight className="w-4 h-4"/></button>}
+        {/* footer */}
+        <div className="flex gap-2 mt-5">
+          {step !== "service" && (
+            <button
+              onClick={back}
+              className="flex-1 border rounded py-2"
+            >
+              <ChevronLeft className="inline w-4" /> Back
+            </button>
+          )}
+
+          {step === "summary" ? (
+            <button
+              onClick={confirmBooking}
+              className="flex-1 bg-blue-600 text-white rounded py-2"
+            >
+              Confirm
+            </button>
+          ) : (
+            <button
+              onClick={next}
+              disabled={!canProceed()}
+              className="flex-1 bg-blue-100 rounded py-2 disabled:opacity-50"
+            >
+              Continue <ChevronRight className="inline w-4" />
+            </button>
+          )}
         </div>
       </motion.div>
     </div>

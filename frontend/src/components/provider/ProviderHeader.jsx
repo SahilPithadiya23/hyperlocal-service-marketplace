@@ -17,6 +17,7 @@ const tempProvider = {
   isVerified: true,
   credentials: ["Licensed", "Insured"],
   responseTime: "Within 2 hours",
+  visitingCost: 99,
   services: [
     { id: 1, name: "Pipe Fix", duration: "1 hr", price: 50 },
     { id: 2, name: "Leak Repair", duration: "2 hrs", price: 80 },
