@@ -11,7 +11,7 @@ const UserProfile = () => {
 
 
   const [reviews, setReviews] = useState([]);
-
+  const [recentBooking, setRecentBooking] = useState({})
   /* 🔥 This connects form → review list */
   const handleReviewSubmit = (newReview) => {
     setReviews((prev) => [newReview, ...prev]);
@@ -25,14 +25,14 @@ const UserProfile = () => {
     city: user?.profile?.city
   };
 
-
-  const recentBooking = {
-    serviceName: "Home Cleaning",
-    providerName: "CleanPro Services",
-    date: "Dec 20, 2024",
-    time: "10:00 AM",
-    status: "Completed",
-  };
+  
+  // const recentBooking = {
+  //   serviceName: "Home Cleaning",
+  //   providerName: "CleanPro Services",
+  //   date: "Dec 20, 2024",
+  //   time: "10:00 AM",
+  //   status: "Completed",
+  // };
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -176,7 +176,7 @@ const UserProfile = () => {
         </div>
       </div>
       <div className="max-w-5xl mx-auto px-4 pb-6 space-y-4">
-        <AddReviewForm onReviewSubmit={handleReviewSubmit} />
+        <AddReviewForm onReviewSubmit={handleReviewSubmit} setRecentBooking={setRecentBooking} />
       </div>
       <div className="max-w-5xl mx-auto px-4 pb-6 space-y-4">
         <ReviewSection reviews={reviews} setReviews={setReviews} />

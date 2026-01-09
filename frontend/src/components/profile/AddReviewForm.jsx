@@ -18,7 +18,7 @@ const staticCompletedServices = [
   },
 ];
 
-const AddReviewForm = ({ onReviewSubmit }) => {
+const AddReviewForm = ({ onReviewSubmit , setRecentBooking }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [completedServices, setCompletedServices] = useState(
     []
@@ -106,8 +106,32 @@ const AddReviewForm = ({ onReviewSubmit }) => {
   };
 
   const selectedServiceData = completedServices.find(
-    (s) => s.id === selectedService
+    (s) => s.provider._id === selectedService
   );
+  
+  const latestCompletedBooking = completedServices
+  .filter((b) => b.status === "completed")
+  .reduce((latest, current) => {
+    if (!latest) return current;
+
+    return new Date(current.createdAt) > new Date(latest.createdAt)
+      ? current
+      : latest;
+  }, null);
+
+  
+useEffect(() => {
+  if (!latestCompletedBooking) return;
+
+  setRecentBooking({
+    serviceName: latestCompletedBooking.provider.serviceName,
+    providerName: `${latestCompletedBooking.provider.firstName} ${latestCompletedBooking.provider.lastName}`,
+    date: latestCompletedBooking.serviceDate,
+    time: latestCompletedBooking.serviceTime,
+    status: latestCompletedBooking.status,
+  });
+}, [latestCompletedBooking]);
+    
 
   return (
     <div className="bg-white rounded-xl shadow-md p-5 w-full">
@@ -151,7 +175,7 @@ const AddReviewForm = ({ onReviewSubmit }) => {
               
               <option value="">Choose a service...</option>
               {completedServices.map((s) => {
-                if(!s.reviewGiven&&s.status!=="completed") return null;
+                if (s.reviewGiven || s.status !== "completed") return null;
                 return (
                   <option key={s._id} value={s.provider._id}>
                     {s.provider.serviceName} - {s.provider.firstName} {s.provider.lastName} ({s.serviceDate})

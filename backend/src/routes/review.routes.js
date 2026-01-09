@@ -10,7 +10,7 @@ router.post('/', authUserMiddleware, reviewController.createReview);
 router.get('/provider/:providerId', reviewController.getProviderReviews);
 
 // Get average rating for a provider
-router.get('/provider/:providerId/average', reviewController.getProviderRating);
+// router.get('/provider/:providerId/average', reviewController.getProviderRating);
 
 // Get all reviews for a user
 router.get('/user/me', authUserMiddleware, reviewController.getUserReviews);
