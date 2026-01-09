@@ -21,7 +21,7 @@ const staticCompletedServices = [
 const AddReviewForm = ({ onReviewSubmit }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [completedServices, setCompletedServices] = useState(
-    staticCompletedServices
+    []
   );
 
   const [selectedService, setSelectedService] = useState("");
@@ -31,25 +31,25 @@ const AddReviewForm = ({ onReviewSubmit }) => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+
   /* ---------------- Fetch completed services ---------------- */
-  // useEffect(() => {
-  //   const fetchCompletedServices = async () => {
-  //     try {
-  //       const res = await axios.get(
-  //         "http://localhost:5000/api/services/completed",
-  //         { withCredentials: true }
-  //       );
+  useEffect(() => {
+    const fetchCompletedServices = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:3000/api/booking/",
+          { withCredentials: true }
+        );
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setCompletedServices(res.data);
+        }
+      } catch (error) {
+        console.log("Backend unavailable, using static services");
+      }
+    };
 
-  //       if (Array.isArray(res.data) && res.data.length > 0) {
-  //         setCompletedServices(res.data);
-  //       }
-  //     } catch (error) {
-  //       console.log("Backend unavailable, using static services");
-  //     }
-  //   };
-
-  //   fetchCompletedServices();
-  // }, []);
+    fetchCompletedServices();
+  }, []);
 
   /* ---------------- Helpers ---------------- */
   const resetForm = () => {
@@ -79,40 +79,27 @@ const AddReviewForm = ({ onReviewSubmit }) => {
 
     setIsSubmitting(true);
 
-    const serviceData = completedServices.find(
-      (s) => s.id === selectedService
-    );
-
-    const payload = {
-      serviceId: selectedService,
-      serviceName: serviceData?.serviceName,
-      providerName: serviceData?.providerName,
-      rating,
-      comment,
-    };
-
+  
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/reviews",
-        payload,
+        "http://localhost:3000/api/review",    
+     {
+      providerId: selectedService,
+      rating,
+      comment,
+    },
         { withCredentials: true }
       );
 
       // backend success
       onReviewSubmit?.(res.data);
     } catch (error) {
-      //  backend fail → local review
-      onReviewSubmit?.({
-        id: Date.now(),
-        serviceName: serviceData?.serviceName,
-        providerName: serviceData?.providerName,
-        rating,
-        comment,
-        date: new Date().toDateString(),
-        helpful: 0,
-      });
+      console.error("Error submitting review:", error);
     }
-
+    //delete this booking from completed services 
+    setCompletedServices((prevServices) =>
+      prevServices.filter((s) => s.provider._id !== selectedService)
+    );
     resetForm();
     setIsOpen(false);
     setIsSubmitting(false);
@@ -132,7 +119,7 @@ const AddReviewForm = ({ onReviewSubmit }) => {
           </h3>
           {!isOpen && (
             <p className="text-gray-500 text-sm mt-1">
-              Share your experience and help others find great services.
+              Share your experience and help others to find great services.
             </p>
           )}
         </div>
@@ -161,12 +148,16 @@ const AddReviewForm = ({ onReviewSubmit }) => {
               onChange={(e) => setSelectedService(e.target.value)}
               className="w-full border rounded-lg px-4 py-2"
             >
+              
               <option value="">Choose a service...</option>
-              {completedServices.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.serviceName} - {s.providerName} ({s.date})
-                </option>
-              ))}
+              {completedServices.map((s) => {
+                if(!s.reviewGiven&&s.status!=="completed") return null;
+                return (
+                  <option key={s._id} value={s.provider._id}>
+                    {s.provider.serviceName} - {s.provider.firstName} {s.provider.lastName} ({s.serviceDate})
+                  </option>
+                );
+              })}
             </select>
             {errors.service && (
               <p className="text-red-500 text-sm mt-1">{errors.service}</p>

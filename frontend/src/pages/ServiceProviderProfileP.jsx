@@ -14,20 +14,19 @@ import { staticProvider } from "../data/StaticProvider";
 
 const ServiceProviderP = () => {
   const { providerId } = useParams();
+  
 
-  const [provider, setProvider] = useState(staticProvider);
+  const [provider, setProvider] = useState({});
 
   useEffect(() => {
     const fetchProvider = async () => {
-      try {
+      
         const res = await axios.get(
-          `http://localhost:5000/api/providers/${providerId}`
+          `http://localhost:3000/api/user/getprovider/${providerId}`,{ withCredentials: true }
         );
-        setProvider(res.data);
-      } catch (err) {
-        console.log("Backend not available, using static data");
-        setProvider(staticProvider);
-      }
+       
+        setProvider(res.data.provider);
+        
     };
 
     fetchProvider();
@@ -43,13 +42,13 @@ const ServiceProviderP = () => {
       <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <ServicesList services={provider.services || []} />
+            <ServicesList services={provider} />
             <ReviewsSection providerId={providerId} />
           </div>
 
           <div>
             <ProviderDetails provider={provider} />
-          </div>
+          </div>  
         </div>
       </main>
     </div>

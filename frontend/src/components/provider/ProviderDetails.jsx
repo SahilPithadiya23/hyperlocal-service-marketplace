@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   MapPin,
   Clock,
@@ -10,8 +10,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import axios from "axios";
-import { useParams } from "react-router-dom";
 import { tempProvider } from "../../data/tempProviderDetails";
 
 const DetailSection = ({
@@ -55,26 +53,10 @@ const DetailSection = ({
   );
 };
 
-const ProviderDetails = () => {
-  const { providerId } = useParams();
-  const [provider, setProvider] = useState(tempProvider);
+const ProviderDetails = ({provider}) => {
+  const [temporaryProvider, setTemporaryProvider] = useState(tempProvider);
 
-  useEffect(() => {
-    const fetchProvider = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:5000/api/providers/${providerId}`
-        );
-        if (res.data && Object.keys(res.data).length > 0) {
-          setProvider(res.data);
-        }
-      } catch (err) {
-        console.log("Backend not available, using static data");
-      }
-    };
-
-    if (providerId) fetchProvider();
-  }, [providerId]);
+ 
 
   return (
     <motion.section
@@ -91,16 +73,16 @@ const ProviderDetails = () => {
       <div className="bg-white rounded-xl p-4 shadow border">
         <h3 className="font-semibold mb-2 text-slate-800">About</h3>
         <p className="text-sm text-slate-600 leading-relaxed">
-          {provider.about}
+          Certified {provider.serviceName} providing reliable {provider.serviceCategory}.
         </p>
       </div>
 
       {/* Availability */}
       <DetailSection title="Availability" Icon={Clock}>
         <div className="flex justify-between">
-          <span>{provider.workingHours?.days}</span>
+          <span>{temporaryProvider.workingHours?.days}</span>
           <span className="font-medium text-slate-800">
-            {provider.workingHours?.hours}
+            9:00 AM - 7:00 PM
           </span>
         </div>
         <p className="text-xs mt-1">Sunday: Closed</p>
@@ -109,21 +91,18 @@ const ProviderDetails = () => {
       {/* Service Area */}
       <DetailSection title="Service Area" Icon={MapPin}>
         <div className="flex flex-wrap gap-2">
-          {provider.serviceArea?.map((area, i) => (
-            <span
-              key={i}
+           <span            
               className="bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded"
             >
-              {area}
+              {provider.city}
             </span>
-          ))}
         </div>
       </DetailSection>
 
       {/* Trust & Safety */}
       <DetailSection title="Trust & Safety" Icon={Shield}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {provider.credentials?.map((item, i) => (
+          {temporaryProvider.credentials?.map((item, i) => (
             <div key={i} className="flex items-center gap-2">
               <span className="w-2 h-2 bg-green-500 rounded-full"></span>
               <span>{item}</span>
@@ -140,12 +119,9 @@ const ProviderDetails = () => {
               <Phone className="w-4 h-4 text-blue-600" />
               <span>Phone</span>
             </div>
-            <a
-              href={`tel:${provider.contact?.phone}`}
-              className="font-medium text-slate-800 hover:text-blue-600"
-            >
-              {provider.contact?.phone}
-            </a>
+            <div className="font-medium text-slate-800">
+              {provider?.phone}
+            </div>
           </div>
 
           <div className="flex items-center justify-between">
@@ -153,12 +129,9 @@ const ProviderDetails = () => {
               <Mail className="w-4 h-4 text-blue-600" />
               <span>Email</span>
             </div>
-            <a
-              href={`mailto:${provider.contact?.email}`}
-              className="font-medium text-slate-800 hover:text-blue-600 break-all"
-            >
-              {provider.contact?.email}
-            </a>
+            <div className="font-medium text-slate-800">
+              {provider?.email}
+            </div>
           </div>
         </div>
       </DetailSection>

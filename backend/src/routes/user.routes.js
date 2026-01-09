@@ -2,7 +2,7 @@ const express = require('express');
 const upload = require('../middlewares/upload.middleware');
 const {  uploadUserProfile} = require('../controllers/upload.controller');
 const { authUserMiddleware } = require('../middlewares/auth.middleware');
-const {getAllProviders} = require('../controllers/user.controller')
+const {getAllProviders,getProviderById} = require('../controllers/user.controller')
 
 const router = express.Router();
 
@@ -15,6 +15,6 @@ router.post(
 );
 
 router.get("/getallproviders",authUserMiddleware,getAllProviders);
-
+router.get("/getprovider/:providerId",authUserMiddleware,getProviderById);
 
 module.exports = router;

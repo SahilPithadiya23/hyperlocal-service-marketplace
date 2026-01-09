@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Star, CheckCircle2, ChevronRight } from "lucide-react";
+import { Star } from "lucide-react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { useParams } from "react-router-dom";
@@ -30,25 +30,26 @@ const RatingBar = ({ stars, percentage }) => {
    Review Card
 -------------------- */
 const ReviewCard = ({ review }) => {
+  const fullName = review.user
+    ? `${review.user.firstName} ${review.user.lastName}`
+    : "Anonymous";
+
+  const initials = fullName
+    .split(" ")
+    .map((n) => n[0])
+    .join("");
+
   return (
     <div className="bg-white p-4 rounded-xl shadow border">
       <div className="flex gap-3">
         <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold text-sm">
-          {review.userName
-            .split(" ")
-            .map((n) => n[0])
-            .join("")}
+          {initials}
         </div>
 
         <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-800">
-              {review.userName}
-            </span>
-            {review.isVerified && (
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
-            )}
-          </div>
+          <span className="font-semibold text-slate-800">
+            {fullName}
+          </span>
 
           <div className="flex items-center gap-2 my-1">
             {Array.from({ length: 5 }, (_, i) => (
@@ -61,9 +62,6 @@ const ReviewCard = ({ review }) => {
                 }`}
               />
             ))}
-            <span className="text-xs text-slate-500">
-              • {review.serviceType}
-            </span>
           </div>
 
           <p className="text-sm text-slate-600 mb-1">
@@ -71,7 +69,7 @@ const ReviewCard = ({ review }) => {
           </p>
 
           <p className="text-xs text-slate-400">
-            {new Date(review.date).toDateString()}
+            {new Date(review.createdAt).toDateString()}
           </p>
         </div>
       </div>
@@ -79,43 +77,74 @@ const ReviewCard = ({ review }) => {
   );
 };
 
+
+const calculateRatingDistribution = (reviews) => {
+  const total = reviews.length;
+
+  const counts = {
+    5: 0,
+    4: 0,
+    3: 0,
+    2: 0,
+    1: 0,
+  };
+
+  reviews.forEach((review) => {
+    counts[review.rating]++;
+  });
+
+  return [5, 4, 3, 2, 1].map((star) => ({
+    stars: star,
+    percentage:
+      total === 0
+        ? 0
+        : Math.round((counts[star] / total) * 100),
+  }));
+};
+
+
 /* --------------------
    Main Component
 -------------------- */
 const ReviewsSection = () => {
-  const { providerId } = useParams(); // 👈 providerId from route
+  const { providerId } = useParams();
 
-  // 👇 static data first
-  const [rating, setRating] = useState(tempReviewsData.rating);
+  const [rating, setRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(
-    tempReviewsData.totalReviews
+    tempReviewsData.totalReviews || 0
   );
-  const [reviews, setReviews] = useState(tempReviewsData.reviews);
+  const [reviews, setReviews] = useState(
+    tempReviewsData.reviews || []
+  );
+const [ratingDistribution, setRatingDistribution] = useState([]);
+
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/providers/${providerId}/reviews`
+          `http://localhost:3000/api/review/provider/${providerId}`
         );
-        setRating(res.data.rating);
+
+        setRating(res.data.averageRating);
         setTotalReviews(res.data.totalReviews);
         setReviews(res.data.reviews);
       } catch (error) {
-        console.log("Backend not available, using static reviews");
+        console.log(
+          "Backend not available, using static reviews"
+        );
       }
     };
 
     if (providerId) fetchReviews();
   }, [providerId]);
 
-  const ratingDistribution = [
-    { stars: 5, percentage: 78 },
-    { stars: 4, percentage: 15 },
-    { stars: 3, percentage: 5 },
-    { stars: 2, percentage: 1 },
-    { stars: 1, percentage: 1 },
-  ];
+  useEffect(() => {
+    if (reviews.length > 0) {
+      const distribution = calculateRatingDistribution(reviews);
+      setRatingDistribution(distribution);
+    }
+  }, [reviews]);
 
   return (
     <motion.section
@@ -129,14 +158,16 @@ const ReviewsSection = () => {
         <h2 className="text-lg sm:text-xl font-bold text-slate-800">
           Reviews
         </h2>
-        
       </div>
 
       {/* Rating Summary */}
       <div className="bg-white p-4 rounded-xl shadow border">
         <div className="flex flex-col sm:flex-row gap-6">
           <div className="text-center sm:text-left">
-            <div className="text-4xl font-bold">{rating}</div>
+            <div className="text-4xl font-bold">
+              {rating.toFixed(1)}
+            </div>
+
             <div className="flex justify-center sm:justify-start my-1">
               {Array.from({ length: 5 }, (_, i) => (
                 <Star
@@ -149,6 +180,7 @@ const ReviewsSection = () => {
                 />
               ))}
             </div>
+
             <p className="text-sm text-slate-500">
               {totalReviews} reviews
             </p>
@@ -168,16 +200,22 @@ const ReviewsSection = () => {
 
       {/* Reviews List */}
       <div className="space-y-3">
-        {reviews.slice(0, 3).map((review, index) => (
-          <motion.div
-            key={review.id || index}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <ReviewCard review={review} />
-          </motion.div>
-        ))}
+        {reviews.length === 0 ? (
+          <p className="text-sm text-slate-500">
+            No reviews yet
+          </p>
+        ) : (
+          reviews.map((review, index) => (
+            <motion.div
+              key={review._id||index}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <ReviewCard review={review} />
+            </motion.div>
+          ))
+        )}
       </div>
     </motion.section>
   );

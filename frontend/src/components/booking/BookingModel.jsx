@@ -60,14 +60,13 @@ export default function BookingModel({ isOpen, onClose, provider }) {
   /* ------------------ confirm booking ------------------ */
   const confirmBooking = async () => {
     try {
-      await axios.post("http://localhost:5000/api/bookings", {
-        providerId: provider.id,
-        issueDescription: issue,
-        visitingCost: provider.visitingCost,
-        date: booking.date,
-        time: booking.timeSlot.time,
-        address: booking.address,
-      });
+      await axios.post("http://localhost:3000/api/booking", {
+        provider: provider._id,
+         issue,
+        serviceDate: booking.date,
+        serviceTime: booking.timeSlot.time,
+        address: `${booking.address.street}, ${booking.address.apartment ? booking.address.apartment + ", " : ""}${booking.address.city} - ${booking.address.zipCode}`,
+      },{withCredentials: true});
 
       alert("✅ Booking Confirmed");
 

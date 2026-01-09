@@ -51,3 +51,57 @@ const App = () => {
 }
 
 export default App
+
+
+
+// import { useEffect, useState } from "react";
+// import ReviewPopup from "./components/reviewrating/ReviewPopup";
+// import axios from "axios";
+
+// const BookingDetails = ({ booking }) => {
+//   // const [showReviewPopup, setShowReviewPopup] = useState(
+//   //   booking.status === "completed" && !booking.reviewGiven
+//   // );
+  
+//   const [showReviewPopup, setShowReviewPopup] = useState(true);
+//   const [notreviewed, setNotreviewed] = useState([]);
+//   const handleReviewSubmit = async ({ rating, review }) => {
+//     useEffect(() => {
+//       const fetchData = async () => {
+//         const response = await axios.get("http://localhost:3000/api/booking/",{withCredentials:true})
+//         setNotreviewed(response.data);
+//       };
+//       fetchData();
+//     }, []);
+//     try {
+//       await axios.post("/api/review", {
+//         providerId: booking.provider,
+//         rating,
+//         comment: review,
+//       });
+
+//       // optional: update booking to mark reviewGiven = true
+//       setShowReviewPopup(false);
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
+
+//   return (
+//     <>
+//       {/* booking UI */}
+//       <h3>Service Details</h3>
+//       {/* <p>Status: {booking.status}</p> */}
+
+//       {showReviewPopup && (
+//         <ReviewPopup
+//           isOpen={showReviewPopup}
+//           onClose={() => setShowReviewPopup(false)}
+//           onSubmit={handleReviewSubmit}
+//         />
+//       )}
+//     </>
+//   );
+// };
+
+// export default BookingDetails;

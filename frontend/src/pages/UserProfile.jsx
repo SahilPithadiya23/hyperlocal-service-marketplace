@@ -10,17 +10,7 @@ const UserProfile = () => {
   const { user } = useContext(UserDataContext);
 
 
-  const [reviews, setReviews] = useState([
-    {
-      id: 1,
-      serviceName: "Home Cleaning",
-      providerName: "CleanPro Services",
-      rating: 5,
-      comment: "Excellent service! Very professional.",
-      date: "Dec 18, 2024",
-      helpful: 12,
-    },
-  ]);
+  const [reviews, setReviews] = useState([]);
 
   /* 🔥 This connects form → review list */
   const handleReviewSubmit = (newReview) => {
@@ -189,7 +179,7 @@ const UserProfile = () => {
         <AddReviewForm onReviewSubmit={handleReviewSubmit} />
       </div>
       <div className="max-w-5xl mx-auto px-4 pb-6 space-y-4">
-        <ReviewSection reviews={reviews} />
+        <ReviewSection reviews={reviews} setReviews={setReviews} />
       </div>
     </div>
   );

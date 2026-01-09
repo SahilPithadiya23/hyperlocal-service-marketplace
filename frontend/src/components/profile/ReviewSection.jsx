@@ -3,23 +3,23 @@ import { Star, ThumbsUp, MessageSquare } from "lucide-react";
 import axios from "axios";
 
 /*  Static fallback reviews */
-const staticReviews = [
-  {
-    id: 1,
-    serviceName: "Home Cleaning",
-    providerName: "CleanPro Services",
-    rating: 5,
-    comment: "Excellent service!",
-    date: "Dec 18, 2024",
-    helpful: 12,
-  },
-];
+// const staticReviews = [
+//   {
+//     id: 1,
+//     serviceName: "Home Cleaning",
+//     providerName: "CleanPro Services",
+//     rating: 5,
+//     comment: "Excellent service!",
+//     date: "Dec 18, 2024",
+//     helpful: 12,
+//   },
+// ];
 
 const StarRating = ({ rating }) => (
   <div className="flex items-center gap-0.5">
     {[1, 2, 3, 4, 5].map((star) => (
       <Star
-        key={star._id} 
+        key={star} 
         size={16}
         className={
           star <= rating
@@ -33,10 +33,11 @@ const StarRating = ({ rating }) => (
 
 const ReviewCard = ({ review }) => (
   <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+    
     <div className="flex justify-between mb-3">
       <div>
-        <h4 className="font-semibold">{review.serviceName}</h4>
-        <p className="text-sm text-gray-500">{review.providerName}</p>
+        <h4 className="font-semibold">{review.provider.firstName} {review.provider.lastName}</h4>
+        <p className="text-sm text-gray-500">{review.provider.serviceName}</p>
       </div>
       <StarRating rating={review.rating} />
     </div>
@@ -53,34 +54,34 @@ const ReviewCard = ({ review }) => (
 );
 
 
-const ReviewSection = ({ reviews: liveReviews }) => {
-  const [reviews, setReviews] = useState(staticReviews);
+const ReviewSection = ({reviews, setReviews}) => {
+  // const [reviews, setReviews] = useState([]);
+  
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:3000/api/review/user/me",
+          { withCredentials: true }
+        );
 
-  // useEffect(() => {
-  //   const fetchReviews = async () => {
-  //     try {
-  //       const res = await axios.get(
-  //         "http://localhost:5000/api/reviews/my",
-  //         { withCredentials: true }
-  //       );
-  //       if (Array.isArray(res.data)) {
-  //         setReviews(res.data);
-  //       }
-  //     } catch {
-  //       console.log("Using static reviews");
-  //     }
-  //   };
-  //   fetchReviews();
-  // }, []);
+        if (Array.isArray(res.data)) {
+          setReviews(res.data);
+        }
+      } catch {
+        console.log("Using static reviews");
+      }
+    };
+    fetchReviews();
+  }, []);
 
-  /*  THIS MAKES IT REAL-TIME */
-  const mergedReviews = [...liveReviews, ...reviews];
+  
 
   const avg =
-    mergedReviews.length > 0
+    reviews.length > 0
       ? (
-          mergedReviews.reduce((s, r) => s + r.rating, 0) /
-          mergedReviews.length
+          reviews.reduce((s, r) => s + r.rating, 0) /
+          reviews.length
         ).toFixed(1)
       : "0.0";
 
@@ -88,7 +89,7 @@ const ReviewSection = ({ reviews: liveReviews }) => {
     <div className="bg-white rounded-xl shadow-md p-5">
       <div className="flex justify-between mb-4">
         <h3 className="text-xl font-semibold flex gap-2">
-          <MessageSquare /> My Reviews ({mergedReviews.length})
+          <MessageSquare /> My Reviews ({reviews.length})
         </h3>
         <span className="flex gap-1">
           <Star className="fill-yellow-400 text-yellow-400" /> {avg}
@@ -96,8 +97,8 @@ const ReviewSection = ({ reviews: liveReviews }) => {
       </div>
 
       <div className="space-y-4">
-        {mergedReviews.map((r) => (
-          <ReviewCard key={r.id} review={r} />
+        {reviews.map((r) => (
+          <ReviewCard key={r._id} review={r} />
         ))}
       </div>
     </div>

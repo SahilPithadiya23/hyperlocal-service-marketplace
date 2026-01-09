@@ -68,12 +68,14 @@ const serviceProviderSchema = new mongoose.Schema({
         type: Number,
         default: 0,
         min: 0
+    },
+
+    visitingCost: {
+        type: Number,
     }
-
-
 
 }, { timestamps: true });
 
-const ServiceProvider = mongoose.model('serviceprovider', serviceProviderSchema);
+const ServiceProvider = mongoose.model('ServiceProvider', serviceProviderSchema);
 
 module.exports = ServiceProvider;

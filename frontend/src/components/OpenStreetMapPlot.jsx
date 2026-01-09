@@ -144,8 +144,8 @@ const OpenStreetMapPlot = ({ lat, lng, onLocationChange, providers = [], service
 
                <button
                   onClick={() =>
-                    navigate("/service-provider-profile/:providerId", {
-                    state: { providerId: shop._id }
+                    navigate(`/service-provider-profile/${shop._id}`, {
+                      state: { providerId: shop._id }
                     })
                   }
                     className="text-sm mt-2 bg-blue-500 text-white px-2 py-0.5 w-full cursor-pointer rounded"

@@ -2,26 +2,14 @@ import { useEffect, useState } from "react";
 import { Home, IndianRupee, Info } from "lucide-react";
 import axios from "axios";
 
-const ServicesList = () => {
+const ServicesList = ({provider}) => {
   const [visitingCost, setVisitingCost] = useState(99);
-
   useEffect(() => {
-    const fetchCost = async () => {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/provider/house-visit-cost`
-        );
-        if (res.data?.visitingCost) {
-          setVisitingCost(res.data.visitingCost);
-        }
-      } catch {
-        // fallback cost already set
-      }
-    };
-
-    fetchCost();
-  }, []);
-
+    if (provider && provider.visitingCost) {
+      setVisitingCost(provider.visitingCost);
+    }
+  }, [provider]);
+  
   return (
      <>
       {/* SERVICES TITLE */}
@@ -33,7 +21,7 @@ const ServicesList = () => {
       <div className="bg-white border border-black rounded-xl p-5">
         <div className="flex justify-between gap-6">
 
-          {/* LEFT */}
+          {/* LEFT */}  
           <div className="flex-1">
             {/* ICON + TITLE ROW */}
             <div className="flex items-center gap-4 mb-3">
