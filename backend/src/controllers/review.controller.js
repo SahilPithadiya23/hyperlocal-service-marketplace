@@ -66,22 +66,6 @@ exports.getProviderReviews = async (req, res) => {
   }
 };
 
-// Get average rating for a provider
-exports.getProviderRating = async (req, res) => {
-  try {
-    const { providerId } = req.params;
-    const result = await Review.aggregate([
-      { $match: { provider: mongoose.Types.ObjectId(providerId) } },
-      { $group: { _id: '$provider', avgRating: { $avg: '$rating' }, count: { $sum: 1 } } }
-    ]);
-    if (result.length === 0) {
-      return res.json({ avgRating: 0, count: 0 });
-    }
-    res.json({ avgRating: result[0].avgRating, count: result[0].count });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
 
 exports.getUserReviews = async (req, res) => {
   try {
