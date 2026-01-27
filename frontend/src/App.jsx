@@ -4,6 +4,13 @@ import ServiceProviderSignUp from './pages/ServiceProviderSignUp'
 import UserSignUp from './pages/UserSignUp'
 import ServiceProviderLogin from './pages/ServiceProviderLogin'
 import UserLogin from './pages/UserLogin'
+import ServiceProviderDashboard from './pages/ServiceProviderDashboard'
+import ServiceRequestsList from './pages/ServiceRequestsList'
+import JobDetailsScreen from './pages/JobDetailsScreen'
+import OngoingJobScreen from './pages/OngoingJobScreen'
+import EarningsWallet from './pages/EarningsWallet'
+import ProfileSettings from './pages/ProfileSettings'
+import AllActivities from './pages/AllActivities'
 import { Route, Routes } from 'react-router-dom'
 import ProtectRouter from './router/ProtectRouter'
 import SProtectRouter from './router/SProtectRouter'
@@ -33,6 +40,11 @@ const App = () => {
         <Sprofile/>
         </SProtectRouter>
         } />
+      <Route path="/dashboard" element={
+        <SProtectRouter>
+          <ServiceProviderDashboard/>
+        </SProtectRouter>
+      } />
          <Route path='/service-provider-profile/:providerId' element={
           <ProtectRouter>
             <ServiceProviderP/>
@@ -45,6 +57,38 @@ const App = () => {
       <Route path="/forgot-password" element={<ForgotPassword/>}></Route>
       <Route path="/verify-otp" element={<VerifyOtp/>}></Route>
       <Route path="/reset-password" element={<ResetPassword/>}></Route>
+      
+      {/* New Service Provider Dashboard Routes */}
+      <Route path="/service-requests" element={
+        <SProtectRouter>
+          <ServiceRequestsList/>
+        </SProtectRouter>
+      } />
+      <Route path="/job-details/:jobId" element={
+        <SProtectRouter>
+          <JobDetailsScreen/>
+        </SProtectRouter>
+      } />
+      <Route path="/ongoing-job/:jobId" element={
+        <SProtectRouter>
+          <OngoingJobScreen/>
+        </SProtectRouter>
+      } />
+      <Route path="/earnings-wallet" element={
+        <SProtectRouter>
+          <EarningsWallet/>
+        </SProtectRouter>
+      } />
+      <Route path="/profile-settings" element={
+        <SProtectRouter>
+          <ProfileSettings/>
+        </SProtectRouter>
+      } />
+      <Route path="/all-activities" element={
+        <SProtectRouter>
+          <AllActivities/>
+        </SProtectRouter>
+      } />
     </Routes>
     </>
   )
