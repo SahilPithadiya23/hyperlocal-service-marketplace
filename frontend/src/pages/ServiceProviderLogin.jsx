@@ -20,7 +20,7 @@ const ServiceProviderLogin = () => {
     if(response.status === 200){
       const data = response.data;
       setProvider(data.provider);
-      navigate('/Sprofile');
+      navigate('/sprofile');
     }  
   }catch(err){
     setError(err.response.data.message);
