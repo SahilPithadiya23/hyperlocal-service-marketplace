@@ -1,15 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const bookingController = require('../controllers/booking.controller');
-const { authUserMiddleware, authCommonMiddleware } = require('../middlewares/auth.middleware');
+const { authUserMiddleware, authCommonMiddleware, authSproviderMiddleware } = require('../middlewares/auth.middleware');
 
 // Create booking (user only)
 router.post('/', authUserMiddleware, bookingController.createBooking);
 
-// List bookings (auth required; can be used by both roles based on token)
+// List bookings (user)
 router.get('/', authUserMiddleware, bookingController.getBookingsUser);
 
-// Get a single booking
+// Provider stats
+router.get('/provider/stats', authSproviderMiddleware, bookingController.getProviderStats);
+
+router.get('/recentactivity', authSproviderMiddleware, bookingController.getRecentActivity);
+// Get bookings by provider id
 router.get('/:id', authCommonMiddleware, bookingController.getBookingsProvider);
 
 // Update a booking
@@ -17,5 +21,6 @@ router.get('/:id', authCommonMiddleware, bookingController.getBookingsProvider);
 
 // Delete a booking
 router.delete('/:id', authCommonMiddleware, bookingController.deleteBooking);
+
 
 module.exports = router;

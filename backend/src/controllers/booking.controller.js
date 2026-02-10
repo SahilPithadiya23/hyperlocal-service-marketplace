@@ -1,5 +1,6 @@
 const Booking = require('../models/book.models');
 const UserModel = require('../models/user.model');
+const ServiceProvider = require('../models/sprovider.model');
 // Create a new booking (user must be authenticated)
 exports.createBooking = async (req, res) => {
   try {
@@ -54,6 +55,41 @@ exports.getBookingsProvider = async (req, res) => {
   }
 };
 
+// Compute stats for a service provider
+exports.getProviderStats = async (req, res) => {
+  try {
+    const providerId = req.serviceprovider?._id || req.params.id;
+    if (!providerId) {
+      return res.status(400).json({ message: 'Provider id missing' });
+    }
+
+    const provider = await ServiceProvider.findById(providerId);
+    if (!provider) {
+      return res.status(404).json({ message: 'Provider not found' });
+    }
+    
+    const [pendingCount, acceptedCount, inProgressCount, completedCount] = await Promise.all([
+      Booking.countDocuments({ provider: providerId, status: 'pending' }),
+      Booking.countDocuments({ provider: providerId, status: 'accepted' }),
+      Booking.countDocuments({ provider: providerId, status: 'in-progress' }),
+      Booking.countDocuments({ provider: providerId, status: 'completed' }),
+    ]);
+
+    const ongoingJobs = acceptedCount + inProgressCount;
+    const averageRating = provider.averageRating;
+
+    // Return actual values from database
+    res.status(200).json({
+      newRequests: pendingCount,
+      ongoingJobs,
+      completedJobs: completedCount,
+      averageRating,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // Update booking (status, times, address, reviewGiven, etc.)
 // exports.updateBooking = async (req, res) => {
 //   try {
@@ -77,6 +113,7 @@ exports.getBookingsProvider = async (req, res) => {
 // };
 
 // Delete booking
+
 exports.deleteBooking = async (req, res) => {
   try {
     const booking = await Booking.findByIdAndDelete(req.params.id);
@@ -87,3 +124,29 @@ exports.deleteBooking = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.getRecentActivity = async (req, res) => {
+  try {
+    const providerId = req.serviceprovider?._id || req.params.id;
+    if (!providerId) {
+      return res.status(400).json({ message: 'Provider id missing' });
+    }
+    const provider = await ServiceProvider.findById(providerId);
+    if (!provider) {
+      return res.status(404).json({ message: 'Provider not found' });
+    }
+    const booking = await Booking.find({ provider: providerId });
+    console.log(booking);
+    res.status(200).json({
+      activity: booking.map(b => ({
+        time: b.serviceTime,
+        title: b.issue,
+        date: b.serviceDate,
+        status: b.status,
+        amount: provider.visitingCost
+      }))
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}

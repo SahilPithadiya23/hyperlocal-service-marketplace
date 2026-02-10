@@ -1,9 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { CheckCircle, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const RecentActivity = () => {
   const navigate = useNavigate();
-
   const recentActivities = [
     {
       _id: "1",
@@ -33,6 +34,19 @@ const RecentActivity = () => {
     },
   ];
 
+  const [activities, setActivities] = useState(recentActivities);
+
+  useEffect(() => {
+    axios.get("http://localhost:3000/api/booking/recentactivity", { withCredentials: true })
+      .then((res) => {
+        const data = res.data || {};
+        setActivities(data.activity || []);
+      })
+      .catch((err) => {
+        console.error("Error fetching recent activity:", err);
+      });
+  }, []);
+
   return (
     <div className="px-4 sm:px-6 lg:px-8 mt-12 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -48,7 +62,7 @@ const RecentActivity = () => {
       </div>
 
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm divide-y divide-gray-100">
-        {recentActivities.map((activity) => (
+        {activities.map((activity) => (
           <div
             key={activity._id}
             className="flex items-center gap-4 p-4 sm:p-6 hover:bg-gray-50 transition"
@@ -72,7 +86,7 @@ const RecentActivity = () => {
                 {activity.title}
               </p>
               <p className="text-xs sm:text-sm text-gray-500">
-                {activity.time}
+               {activity.date} {activity.time}
               </p>
             </div>
 

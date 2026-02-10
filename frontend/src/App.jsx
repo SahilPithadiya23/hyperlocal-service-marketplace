@@ -37,7 +37,7 @@ const App = () => {
         </ProtectRouter>
       }/>
       <Route path="/Sprofile" element={<SProtectRouter>
-        <Sprofile/>
+        <ServiceProviderDashboard/>
         </SProtectRouter>
         } />
       <Route path="/dashboard" element={
