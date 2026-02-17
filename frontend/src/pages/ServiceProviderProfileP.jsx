@@ -24,7 +24,7 @@ const ServiceProviderP = () => {
         const res = await axios.get(
           `http://localhost:3000/api/user/getprovider/${providerId}`,{ withCredentials: true }
         );
-       
+       console.log("Fetched provider data:", res.data.provider.visitingCost);
         setProvider(res.data.provider);
         
     };
@@ -42,7 +42,7 @@ const ServiceProviderP = () => {
       <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <ServicesList services={provider} />
+            <ServicesList provider={provider} />
             <ReviewsSection providerId={providerId} />
           </div>
 

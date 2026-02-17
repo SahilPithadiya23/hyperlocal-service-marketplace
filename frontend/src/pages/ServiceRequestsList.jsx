@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import ServiceRequestsHeader from "../components/spservicerequestlist/ServiceRequestsHeader";
 import ServiceRequestsListComponent from "../components/spservicerequestlist/ServiceRequestsList";
 import ServiceDetailsModal from "../components/spservicerequestlist/ServiceDetailsModal";
-
+import axios from "axios";
 const ServiceRequestsList = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -14,6 +14,31 @@ const ServiceRequestsList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [serviceRequests, setServiceRequests] = useState([]);
+
+useEffect(() => {
+  const fetchServiceRequests = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/api/servicerequests',
+        { withCredentials: true }
+      );
+
+      console.log("API Response:", response.data.bookings);
+
+      if (response.data && Array.isArray(response.data.bookings)) {
+        setServiceRequests(response.data.bookings);
+      } else {
+        setServiceRequests([]);  // fallback
+      }
+
+    } catch (error) {
+      console.error("Error fetching service requests:", error);
+      setServiceRequests([]); // prevent crash
+    }
+  };
+
+  fetchServiceRequests();
+}, []);
 
   // Save active tab to localStorage whenever it changes
   useEffect(() => {
@@ -52,60 +77,10 @@ const ServiceRequestsList = () => {
     }
   }, [location.state]);
 
-  // Dummy data for service requests
-  const [serviceRequests, setServiceRequests] = useState([
-    {
-      id: "1",
-      customerName: "Amit Sharma",
-      serviceType: "AC Repair",
-      distance: "2.3 km",
-      time: "Today, 10:30 AM",
-      price: "₹800-1200",
-      status: "new",
-      rating: 4.5,
-      description: "AC not cooling properly",
-      address: "123, Sector 15, Noida"
-    },
-    {
-      id: "2",
-      customerName: "Priya Patel",
-      serviceType: "Plumbing",
-      distance: "1.8 km",
-      time: "Today, 11:45 AM",
-      price: "₹500-800",
-      status: "new",
-      rating: 4.8,
-      description: "Kitchen sink leakage",
-      address: "456, Block A, Gurgaon"
-    },
-    {
-      id: "3",
-      customerName: "Rahul Verma",
-      serviceType: "Electrician",
-      distance: "3.1 km",
-      time: "Today, 2:00 PM",
-      price: "₹600-1000",
-      status: "accepted",
-      rating: 4.2,
-      description: "Power socket installation",
-      address: "789, Phase 2, Delhi"
-    },
-    {
-      id: "4",
-      customerName: "Sneha Reddy",
-      serviceType: "Cleaning",
-      distance: "0.9 km",
-      time: "Yesterday, 4:30 PM",
-      price: "₹400-600",
-      status: "completed",
-      rating: 4.9,
-      description: "Deep cleaning for 2BHK",
-      address: "321, Tower 7, Noida"
-    }
-  ]);
-
+  
+ 
   const filters = [
-    { value: "new", label: "New", count: serviceRequests.filter(r => r.status === "new").length },
+    { value: "pending", label: "Pending", count: serviceRequests.filter(r => r.status === "pending").length },
     { value: "accepted", label: "Accepted", count: serviceRequests.filter(r => r.status === "accepted").length },
     { value: "completed", label: "Completed", count: serviceRequests.filter(r => r.status === "completed").length },
     { value: "rejected", label: "Rejected", count: serviceRequests.filter(r => r.status === "rejected").length }
@@ -160,33 +135,43 @@ const ServiceRequestsList = () => {
     setActiveFilter("completed");
   };
 
-  const handleAccept = (requestId) => {
-    setServiceRequests(prevRequests => 
-      prevRequests.map(request => 
-        request.id === requestId 
-          ? { ...request, status: "accepted" }
-          : request
-      )
-    );
-    // Automatically switch to Accepted tab to show the moved request
-    setActiveFilter("accepted");
+  const handleAccept = async (requestId) => {
+    try {
+      await axios.post(`http://localhost:3000/api/booking/${requestId}/accept`, {}, { withCredentials: true });
+      setServiceRequests(prevRequests => 
+        prevRequests.map(request => 
+          request.id === requestId 
+            ? { ...request, status: "accepted" }
+            : request
+        )
+      );
+      setActiveFilter("accepted");
+    } catch (err) {
+      console.error("Failed to accept booking:", err);
+      alert("Failed to accept booking. Please try again.");
+    }
   };
 
-  const handleReject = (requestId) => {
-    setServiceRequests(prevRequests => 
-      prevRequests.map(request => 
-        request.id === requestId 
-          ? { ...request, status: "rejected" }
-          : request
-      )
-    );
-    // Automatically switch to Rejected tab to show the moved request
-    setActiveFilter("rejected");
+  const handleReject = async (requestId) => {
+    try {
+      await axios.post(`http://localhost:3000/api/booking/${requestId}/reject`, {}, { withCredentials: true });
+      setServiceRequests(prevRequests => 
+        prevRequests.map(request => 
+          request.id === requestId 
+            ? { ...request, status: "rejected" }
+            : request
+        )
+      );
+      setActiveFilter("rejected");
+    } catch (err) {
+      console.error("Failed to reject booking:", err);
+      alert("Failed to reject booking. Please try again.");
+    }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "new":
+      case "pending":
         return "bg-blue-100 text-blue-700 border-blue-200";
       case "accepted":
         return "bg-green-100 text-green-700 border-green-200";

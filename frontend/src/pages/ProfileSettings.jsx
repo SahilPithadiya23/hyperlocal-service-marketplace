@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   User,
   Camera,
@@ -44,16 +45,11 @@ const ProfileSettings = () => {
     businessType: "Individual",
     gstNumber: "09AAAPL1234C1ZV",
     profilePhoto: null,
+    profileImageFilename: null,
     description: "Professional AC repair and plumbing services with 5+ years of experience. Certified technician with excellent customer ratings."
   });
 
-  const [documents, setDocuments] = useState({
-    aadhar: { uploaded: true, name: "Aadhar Card.pdf", verified: true },
-    license: { uploaded: true, name: "Service License.pdf", verified: true },
-    pan: { uploaded: false, name: null, verified: false },
-    certificate: { uploaded: true, name: "Technical Certificate.pdf", verified: false }
-  });
-
+  
   const [ratings] = useState([
     { id: 1, customer: "Amit Sharma", rating: 5, comment: "Excellent service! Very professional and knowledgeable.", date: "2 days ago" },
     { id: 2, customer: "Priya Patel", rating: 4, comment: "Good work, arrived on time and fixed the issue quickly.", date: "1 week ago" },
@@ -87,24 +83,34 @@ const ProfileSettings = () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = e.target.files[0];
-      if (file) {
-        console.log("Profile photo uploaded:", file);
-        // Update the profile photo in state
+      if (!file) return;
+      try {
+        const formData = new FormData();
+        formData.append('profileImage', file);
+        const res = await axios.post(
+          'http://localhost:3000/api/provider/upload-profile',
+          formData,
+          { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+        // Save local file for preview and server filename to display via /uploads later
         setProfileData(prev => ({
           ...prev,
-          profilePhoto: file
+          profilePhoto: file,
+          profileImageFilename: res.data.profileImage
         }));
+         window.location.reload(); // simple & safe
+      } catch (err) {
+        console.error('Profile photo upload failed:', err);
+        alert('Failed to upload profile photo. Please try again.');
       }
     };
     // Append to DOM and trigger click
     document.body.appendChild(input);
     input.click();
     // Clean up after a short delay to ensure file dialog opens
-    setTimeout(() => {
-      document.body.removeChild(input);
-    }, 100);
+    setTimeout(() => document.body.removeChild(input), 100);
   };
 
   const menuItems = [

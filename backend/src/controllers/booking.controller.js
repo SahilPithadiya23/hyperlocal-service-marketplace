@@ -150,3 +150,47 @@ exports.getRecentActivity = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 }
+
+exports.acceptBooking = async (req, res) => {
+  try {
+    const providerId = req.serviceprovider?._id;
+    const { id } = req.params;
+    if (!providerId) return res.status(401).json({ message: 'Unauthorized' });
+
+    const booking = await Booking.findById(id);
+    if (!booking) return res.status(404).json({ message: 'Booking not found' });
+    if (String(booking.provider) !== String(providerId)) {
+      return res.status(403).json({ message: 'Not your booking' });
+    }
+    if (booking.status !== 'pending') {
+      return res.status(400).json({ message: 'Only pending bookings can be accepted' });
+    }
+    booking.status = 'accepted';
+    await booking.save();
+    res.status(200).json({ message: 'Booking accepted', booking });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.rejectBooking = async (req, res) => {
+  try {
+    const providerId = req.serviceprovider?._id;
+    const { id } = req.params;
+    if (!providerId) return res.status(401).json({ message: 'Unauthorized' });
+
+    const booking = await Booking.findById(id);
+    if (!booking) return res.status(404).json({ message: 'Booking not found' });
+    if (String(booking.provider) !== String(providerId)) {
+      return res.status(403).json({ message: 'Not your booking' });
+    }
+    if (booking.status !== 'pending') {
+      return res.status(400).json({ message: 'Only pending bookings can be rejected' });
+    }
+    booking.status = 'rejected';
+    await booking.save();
+    res.status(200).json({ message: 'Booking rejected', booking });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

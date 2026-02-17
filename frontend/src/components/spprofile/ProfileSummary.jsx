@@ -1,13 +1,18 @@
 import { User, Camera, Star } from "lucide-react";
+import { ServiceProviderDataContext } from "../../context/ServiceProviderContext";
+import { useContext } from "react";
+
 
 const ProfileSummary = ({ profileData, averageRating, totalJobs, onPhotoUpload, renderStars }) => {
+  const { provider } = useContext(ServiceProviderDataContext);
+   console.log("ProfileSummary received profileData:", provider);
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
       <div className="flex flex-col items-center">
         <div className="relative mb-4">
-          {profileData.profilePhoto ? (
+          {provider.profileImage ? (
             <img 
-              src={typeof profileData.profilePhoto === 'string' ? profileData.profilePhoto : URL.createObjectURL(profileData.profilePhoto)} 
+              src={`http://localhost:3000/uploads/providers/${provider.profileImage}`} 
               alt="Profile" 
               className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover"
             />
@@ -27,11 +32,11 @@ const ProfileSummary = ({ profileData, averageRating, totalJobs, onPhotoUpload, 
           <h2 className="text-xl sm:text-2xl font-semibold">{profileData.name}</h2>
           <div className="flex items-center justify-center gap-2 sm:gap-3 mt-2">
             <div className="flex items-center gap-1">
-              {renderStars(Math.floor(averageRating))}
-              <span className="text-sm ml-1">{averageRating}</span>
+              {renderStars(Math.floor(provider.averageRating))}
+              <span className="text-sm ml-1">{provider.averageRating}</span>
             </div>
             <span className="text-gray-400">•</span>
-            <span className="text-sm text-gray-900">{totalJobs} jobs completed</span>
+            <span className="text-sm text-gray-900">{provider.totalReviews} jobs completed</span>
           </div>
         </div>
       </div>

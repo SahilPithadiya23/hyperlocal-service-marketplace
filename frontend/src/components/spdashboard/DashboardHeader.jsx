@@ -1,11 +1,24 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, MessageCircle, User } from "lucide-react";
+import { Bell, MessageCircle, User, LogOut } from "lucide-react";
 
 const DashboardHeader = ({ providerName }) => {
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef(null);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('http://localhost:3000/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      navigate('/service-provider-login');
+    } catch (e) {
+      console.error('Logout failed', e);
+      navigate('/service-provider-login');
+    }
+  };
 
   // Dummy notifications data - only customer messages
   const [notifications] = useState([
@@ -42,7 +55,7 @@ const DashboardHeader = ({ providerName }) => {
   ]);
 
   return (
-    <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-4 sm:px-6 lg:px-8 py-4 sm:py-6 rounded-b-3xl shadow-lg">
+    <div className="bg-linear-to-r from-blue-600 to-blue-800 text-white px-4 sm:px-6 lg:px-8 py-4 sm:py-6 rounded-b-3xl shadow-lg">
       <div className="flex flex-col gap-4 sm:gap-6">
         {/* Top Section - Greeting and Icons */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
@@ -82,7 +95,7 @@ const DashboardHeader = ({ providerName }) => {
                         className="p-4 border-b border-gray-100 hover:bg-gray-50 transition cursor-pointer"
                       >
                         <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
                             <MessageCircle className="w-4 h-4" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -126,6 +139,13 @@ const DashboardHeader = ({ providerName }) => {
               className="p-2 sm:p-2.5 bg-white/20 rounded-full hover:bg-white/30 transition"
             >
               <User className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            <button
+              onClick={handleLogout}
+              className="p-2 sm:p-2.5 bg-white/20 rounded-full hover:bg-white/30 transition"
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>

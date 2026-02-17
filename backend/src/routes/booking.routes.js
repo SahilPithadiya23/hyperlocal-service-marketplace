@@ -16,6 +16,10 @@ router.get('/recentactivity', authSproviderMiddleware, bookingController.getRece
 // Get bookings by provider id
 router.get('/:id', authCommonMiddleware, bookingController.getBookingsProvider);
 
+// Accept/Reject booking (provider)
+router.post('/:id/accept', authSproviderMiddleware, bookingController.acceptBooking);
+router.post('/:id/reject', authSproviderMiddleware, bookingController.rejectBooking);
+
 // Update a booking
 // router.put('/:id', authCommonMiddleware, bookingController.updateBooking);
 

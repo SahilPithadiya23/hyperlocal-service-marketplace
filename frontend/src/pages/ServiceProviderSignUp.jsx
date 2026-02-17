@@ -28,6 +28,9 @@ const ServiceProviderSignUp = () => {
   // Map modal state
   const [isMapOpen, setIsMapOpen] = useState(false)
 
+  // Add visiting cost state
+  const [visitingCost, setVisitingCost] = useState('')
+
   /* SAME BUTTON – LOGIC ONLY CHANGED */
   const getLocation = () => {
     setIsMapOpen(true)
@@ -65,7 +68,8 @@ const ServiceProviderSignUp = () => {
           city,
           pincode,
           lat,
-          long
+          long,
+          visitingCost: visitingCost ? Number(visitingCost) : undefined
         },
         { withCredentials: true }
       )
@@ -152,7 +156,7 @@ const ServiceProviderSignUp = () => {
             required
           />
 
-          {/* Category & Experience */}
+          {/* Category, Experience & Visiting Cost */}
           <div className='flex gap-4 mb-4'>
             <select
               value={category}
@@ -175,6 +179,17 @@ const ServiceProviderSignUp = () => {
               className="border p-2 rounded w-full"
             />
           </div>
+
+          {/* Visiting Cost */}
+          <input
+            type='number'
+            min='0'
+            step='1'
+            value={visitingCost}
+            onChange={(e) => setVisitingCost(e.target.value)}
+            placeholder='Visiting cost (₹)'
+            className="border p-2 rounded w-full mb-4"
+          />
 
           {/* Address */}
           <textarea

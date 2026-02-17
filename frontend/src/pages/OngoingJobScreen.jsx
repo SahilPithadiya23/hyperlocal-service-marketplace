@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation,useParams } from "react-router-dom";
 import { CheckCircle, Navigation, Briefcase } from "lucide-react";
 import OngoingJobHeader from "../components/spongoingjob/OngoingJobHeader";
 import StatusTracker from "../components/spongoingjob/StatusTracker";
@@ -10,11 +10,14 @@ import PriceSummary from "../components/spongoingjob/PriceSummary";
 import CompleteJobButton from "../components/spongoingjob/CompleteJobButton";
 import OtpModal from "../components/spongoingjob/OtpModal";
 import ExtraChargesModal from "../components/spongoingjob/ExtraChargesModal";
+import axios from "axios";
 
 export default function OngoingJobScreen() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { jobId } = useParams();
   const [currentStatus, setCurrentStatus] = useState("accepted");
+  const {customerdetails} = location.state || {};
   const [extraCharges, setExtraCharges] = useState(0);
   const [extraChargesReason, setExtraChargesReason] = useState("");
   const [afterPhoto, setAfterPhoto] = useState(null);
@@ -23,36 +26,15 @@ export default function OngoingJobScreen() {
   const [generatedOtp, setGeneratedOtp] = useState("");
   const [enteredOtp, setEnteredOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [customerEmail, setCustomerEmail] = useState("customer@example.com"); // In real app, this would come from API
+  const [customerEmail, setCustomerEmail] = useState(customerdetails.email); // In real app, this would come from API
+  const [uploadedServicePhotoFilename, setUploadedServicePhotoFilename] = useState(null);
 
   // Get job ID from URL or navigation state
-  const jobId = location.pathname.split('/').pop() || location.state?.jobId || "1";
+  console.log("Job ID from URL:", customerdetails);
 
   // Dummy job data - in real app, this would come from API
-  const allJobs = {
-    "1": {
-      id: "1",
-      customerName: "Amit Sharma",
-      customerPhone: "+91 98765 43210",
-      serviceType: "AC Repair",
-      address: "123, Sector 15, Noida, Uttar Pradesh 201301",
-      startTime: "2:00 PM",
-      estimatedPrice: "₹800-1200",
-      basePrice: 800
-    },
-    "3": {
-      id: "3",
-      customerName: "Rahul Verma",
-      customerPhone: "+91 98765 54321",
-      serviceType: "Electrician",
-      address: "789, Phase 2, Delhi",
-      startTime: "2:00 PM",
-      estimatedPrice: "₹600-1000",
-      basePrice: 600
-    }
-  };
-
-  const job = allJobs[jobId] || allJobs["1"];
+  
+  
 
   const statusSteps = [
     { key: "accepted", label: "Accepted", icon: CheckCircle, completed: true },
@@ -77,32 +59,46 @@ export default function OngoingJobScreen() {
     }
   };
 
-  const sendOtpToEmail = (email, otp) => {
+  const sendOtpToEmail = async (email, otp) => {
     // Simulate sending OTP email (in real app, this would be an API call)
-    console.log(`Sending OTP ${otp} to email: ${email}`);
-    alert(`OTP ${otp} has been sent to ${email}`);
+    alert(`OTP has been sent to ${email}`);
+    await axios.post(`http://localhost:3000/api/servicerequests/otp/${jobId}`, {  }, { withCredentials: true });
   };
 
-  const verifyOtpAndProceed = () => {
-    if (enteredOtp === generatedOtp) {
+  const verifyOtpAndProceed = async () => {
+    const res = await axios.post('http://localhost:3000/api/servicerequests/verifyotp', { otp: enteredOtp, jobId }, { withCredentials: true });
+    if (res.data.success) {
+      // OTP verified successfully
       setCurrentStatus('inprogress');
       setShowOtpModal(false);
       setEnteredOtp('');
-      setOtpSent(false);
-      alert('OTP verified! Status updated to "In Progress"');
     } else {
-      alert('Invalid OTP. Please try again.');
+      alert(res.data.message);
     }
   };
 
   const handlePhotoUpload = () => {
-    // Handle photo upload logic
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = e.target.files[0];
+      if (!file) return;
       setAfterPhoto(file);
+      try {
+        const formData = new FormData();
+        formData.append('photo', file);
+        formData.append('bookingId', jobId);
+        const res = await axios.post(
+          'http://localhost:3000/api/servicephoto/upload-service-photo',
+          formData,
+          { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+        setUploadedServicePhotoFilename(res.data.photoUrl);
+      } catch (err) {
+        console.error('Service photo upload failed:', err);
+        alert('Failed to upload service photo. Please try again.');
+      }
     };
     input.click();
   };
@@ -116,24 +112,22 @@ export default function OngoingJobScreen() {
     // Update status to completed first
     setCurrentStatus('completed');
     
-    console.log("Job completed with data:", {
-      jobId: job.id,
-      extraCharges,
-      extraChargesReason,
-      afterPhoto
-    });
+    
     
     // Navigate to completion screen or dashboard
-    navigate("/service-requests", { 
-      state: { completedJobId: job.id }
-    });
+    navigate("/service-requests");
   };
 
   const getCurrentStepIndex = () => {
     return statusSteps.findIndex(step => step.key === currentStatus);
   };
 
-  const totalPrice = job.basePrice + extraCharges;
+const totalPrice =
+  Number(customerdetails.basePrice) + Number(extraCharges);
+
+const totalPriceString = totalPrice.toString();
+
+console.log("Total Price:", customerdetails.basePrice, extraCharges, totalPrice);
 
   return (
     <div className="min-h-screen bg-white">
@@ -154,7 +148,7 @@ export default function OngoingJobScreen() {
         />
 
         {/* Job Info */}
-        <JobInfo job={job} />
+        <JobInfo  customerdetails={customerdetails} />
 
         {/* Extra Charges */}
         <ExtraCharges 
@@ -172,11 +166,10 @@ export default function OngoingJobScreen() {
 
         {/* Price Summary */}
         <PriceSummary 
-          job={job}
+          job={customerdetails}
           extraCharges={extraCharges}
-          totalPrice={totalPrice}
+          totalPrice={totalPriceString}
         />
-
         {/* Complete Job Button */}
         <CompleteJobButton 
           currentStatus={currentStatus}

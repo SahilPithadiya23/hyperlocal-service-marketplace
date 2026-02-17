@@ -1,4 +1,5 @@
 import { CheckCircle, Navigation, Briefcase } from "lucide-react";
+import axios from "axios";
 
 export function StatusTracker({ 
   currentStatus, 

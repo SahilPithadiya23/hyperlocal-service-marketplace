@@ -22,7 +22,7 @@ const SchedulePricing = ({ job }) => {
             <span className="text-base font-medium">₹</span>
             Estimated Price
           </p>
-          <p className="font-medium text-gray-900 text-sm sm:text-base">{job.estimatedPrice}</p>
+          <p className="font-medium text-gray-900 text-sm sm:text-base">₹{job.estimatedPrice}</p>
         </div>
         
         <div className="pt-3 sm:pt-4 border-t border-gray-100">

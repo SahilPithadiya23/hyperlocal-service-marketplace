@@ -99,7 +99,7 @@ const Footer = () => {
             <ul className="space-y-3 text-sm text-gray-400">
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
-                support@localserve.com
+                vp9328008166@gmail.com
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4" />
@@ -111,7 +111,7 @@ const Footer = () => {
 
         {/* Bottom */}
         <div className="pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
-          <p>© 2024 LocalServe. All rights reserved.</p>
+          <p>© 2025 LocalServe. All rights reserved.</p>
           <div className="flex gap-6">
             <span className="hover:text-white cursor-pointer">Privacy Policy</span>
             <span className="hover:text-white cursor-pointer">Terms of Service</span>

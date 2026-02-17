@@ -6,33 +6,60 @@ import ServiceInformation from "../components/spjobdetailsscreen/ServiceInformat
 import LocationMap from "../components/spjobdetailsscreen/LocationMap";
 import SchedulePricing from "../components/spjobdetailsscreen/SchedulePricing";
 import ActionButtons from "../components/spjobdetailsscreen/ActionButtons";
-
+import { useEffect } from "react";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 const JobDetailsScreen = () => {
   const navigate = useNavigate();
   const [jobStarted, setJobStarted] = useState(false);
+  const { jobId } = useParams(); // Get job ID from URL params
+  const [job, setJob] = useState({
+    id: "",
+    customerName: "",
+    customerPhone: "",
+    customerEmail: "",
+    serviceType: "",
+    description: "",
+    address: "",
+    scheduledTime: "",
+    estimatedPrice: "",
+    rating: 0,
+    totalJobs: 0,
+    urgency: "",
+    specialInstructions: "",
+    paymentMethod: "",
+    status: ""
+  });
+  
+console.log("Job ID from URL:", jobId);
+  useEffect(() => {
+       const fetchJobDetails = async () => {
+           try {
+               const response = await axios.get(`http://localhost:3000/api/servicerequests/job/${jobId}`,{withCredentials:true});
+               console.log("Fetched job details:", response.data);
+               setJob(response.data.job);
+           } catch (error) {
+               console.error("Error fetching job details:", error);
+           }
+       };
 
-  // Dummy job data
-  const job = {
-    id: "1",
-    customerName: "Amit Sharma",
-    customerPhone: "+91 98765 43210",
-    customerEmail: "amit.sharma@email.com",
-    serviceType: "AC Repair",
-    description: "AC not cooling properly. The compressor seems to be working but the air is not cold enough. Need to check refrigerant levels and clean the filters.",
-    address: "CG Road, Ahmedabad, Gujarat 380006",
-    scheduledTime: "Today, 2:00 PM - 4:00 PM",
-    estimatedPrice: "₹800-1200",
-    rating: 4.5,
-    totalJobs: 12,
-    urgency: "Medium",
-    specialInstructions: "Please call before arriving. Parking available in basement.",
-    paymentMethod: "Cash",
-    status: "accepted"
-  };
+       fetchJobDetails();
+   }, []);
+
+   const customerdetails = {
+     name: job.customerName,
+     address: job.address,
+     startTime: job.scheduledTime,
+     serviceType: job.serviceType,  
+     basePrice: job.estimatedPrice,
+     email: job.customerEmail,
+   };
 
   const handleStartJob = () => {
     setJobStarted(true);
-    navigate(`/ongoing-job/${job.id}`);
+    navigate(`/ongoing-job/${job.id}`,{
+      state: { customerdetails }
+    });
   };
 
   const handleCancelJob = () => {

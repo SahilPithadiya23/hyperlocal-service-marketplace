@@ -83,7 +83,8 @@ async function registerProvider(req, res) {
         city,
         pincode,
         lat,
-        long
+        long,
+        visitingCost
     } = req.body;
 
     // Check if already exists
@@ -109,7 +110,8 @@ async function registerProvider(req, res) {
         city,
         pincode,
         lat,
-        long
+        long,
+        visitingCost
     });
 
     // JWT Token
@@ -126,7 +128,8 @@ async function registerProvider(req, res) {
             serviceName: provider.serviceName,
             email: provider.email,
             lat: provider.lat,
-            long: provider.long
+            long: provider.long,
+            visitingCost: provider.visitingCost
         }
     });
 }

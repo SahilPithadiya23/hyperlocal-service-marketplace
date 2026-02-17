@@ -5,8 +5,11 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     if (req.baseUrl.includes("provider")) {
       cb(null, "uploads/providers");
-    } else {
+    } else if (req.baseUrl.includes("user")) {
       cb(null, "uploads/users");
+    }
+    else {
+      cb(null, "uploads/servicePhotos");
     }
   },
   filename: (req, file, cb) => {
