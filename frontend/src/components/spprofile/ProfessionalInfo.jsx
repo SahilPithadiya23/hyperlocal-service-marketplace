@@ -1,6 +1,10 @@
 import { Check, Edit2 } from "lucide-react";
-
+import { ServiceProviderDataContext } from "../../context/ServiceProviderContext";
+import { useContext } from "react";
+  
 const ProfessionalInfo = ({ profileData, isEditing, onProfileDataChange, onToggleEdit }) => {
+  const { provider } = useContext(ServiceProviderDataContext);
+
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-4">
       <div className="flex items-center justify-between mb-4">
@@ -22,7 +26,7 @@ const ProfessionalInfo = ({ profileData, isEditing, onProfileDataChange, onToggl
           <label className="block text-sm font-medium text-gray-700 mb-1">Service Area</label>
           <input
             type="text"
-            value={profileData.serviceArea}
+            value={provider.address + ", " + provider.city}
             onChange={(e) => onProfileDataChange('serviceArea', e.target.value)}
             disabled={!isEditing}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
@@ -33,7 +37,7 @@ const ProfessionalInfo = ({ profileData, isEditing, onProfileDataChange, onToggl
           <label className="block text-sm font-medium text-gray-700 mb-1">Experience</label>
           <input
             type="text"
-            value={profileData.experience}
+            value={profileData.experience ?? ''}
             onChange={(e) => onProfileDataChange('experience', e.target.value)}
             disabled={!isEditing}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
@@ -44,7 +48,7 @@ const ProfessionalInfo = ({ profileData, isEditing, onProfileDataChange, onToggl
           <label className="block text-sm font-medium text-gray-700 mb-1">Visiting Cost</label>
           <input
             type="text"
-            value={profileData.visitingCost}
+            value={profileData.visitingCost ?? ''}
             onChange={(e) => onProfileDataChange('visitingCost', e.target.value)}
             disabled={!isEditing}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
@@ -55,7 +59,7 @@ const ProfessionalInfo = ({ profileData, isEditing, onProfileDataChange, onToggl
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Bio/Description</label>
           <textarea
-            value={profileData.description}
+            value={`Professional ${provider.serviceName} and ${provider.serviceCategory}  with ${provider.experience} years of experience. Certified technician with excellent customer ratings.`}
             onChange={(e) => onProfileDataChange('description', e.target.value)}
             disabled={!isEditing}
             rows={3}

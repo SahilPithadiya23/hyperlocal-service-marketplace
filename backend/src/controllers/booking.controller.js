@@ -55,6 +55,20 @@ exports.getBookingsProvider = async (req, res) => {
   }
 };
 
+exports.getBookingsProvider = async (req, res) => {
+  try {
+    const bookings = await Booking.find({ provider: req.params.id })
+      .populate('user', 'firstName lastName email')
+      .populate('provider', 'firstName lastName serviceName email');
+
+    if (!bookings) return res.status(404).json({ message: 'No bookings found' });
+
+    res.json(bookings);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // Compute stats for a service provider
 exports.getProviderStats = async (req, res) => {
   try {

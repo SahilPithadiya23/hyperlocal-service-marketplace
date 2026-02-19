@@ -9,6 +9,7 @@ router.post('/', authUserMiddleware, bookingController.createBooking);
 // List bookings (user)
 router.get('/', authUserMiddleware, bookingController.getBookingsUser);
 
+
 // Provider stats
 router.get('/provider/stats', authSproviderMiddleware, bookingController.getProviderStats);
 

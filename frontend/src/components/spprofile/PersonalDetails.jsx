@@ -1,6 +1,10 @@
 import { Check, Edit2 } from "lucide-react";
+import { ServiceProviderDataContext } from "../../context/ServiceProviderContext";
+import { useContext } from "react";
 
 const PersonalDetails = ({ profileData, isEditing, onProfileDataChange, onToggleEdit }) => {
+  const { provider } = useContext(ServiceProviderDataContext);
+
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-4">
       <div className="flex items-center justify-between mb-4">
@@ -22,7 +26,7 @@ const PersonalDetails = ({ profileData, isEditing, onProfileDataChange, onToggle
           <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
           <input
             type="text"
-            value={profileData.name}
+            value={profileData.name ?? ''}
             onChange={(e) => onProfileDataChange('name', e.target.value)}
             disabled={!isEditing}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
@@ -33,7 +37,7 @@ const PersonalDetails = ({ profileData, isEditing, onProfileDataChange, onToggle
           <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
           <input
             type="tel"
-            value={profileData.phone}
+            value={profileData.phone ?? ''}
             onChange={(e) => onProfileDataChange('phone', e.target.value)}
             disabled={!isEditing}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
@@ -44,7 +48,7 @@ const PersonalDetails = ({ profileData, isEditing, onProfileDataChange, onToggle
           <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
           <input
             type="email"
-            value={profileData.email}
+            value={profileData.email ?? ''}
             onChange={(e) => onProfileDataChange('email', e.target.value)}
             disabled={!isEditing}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
@@ -54,7 +58,7 @@ const PersonalDetails = ({ profileData, isEditing, onProfileDataChange, onToggle
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
           <textarea
-            value={profileData.address}
+            value={profileData.address ?? ''}
             onChange={(e) => onProfileDataChange('address', e.target.value)}
             disabled={!isEditing}
             rows={2}
@@ -67,7 +71,7 @@ const PersonalDetails = ({ profileData, isEditing, onProfileDataChange, onToggle
             <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
             <input
               type="text"
-              value={profileData.city}
+              value={profileData.city ?? ''}
               onChange={(e) => onProfileDataChange('city', e.target.value)}
               disabled={!isEditing}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
@@ -76,11 +80,11 @@ const PersonalDetails = ({ profileData, isEditing, onProfileDataChange, onToggle
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Zipcode</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">pincode</label>
             <input
               type="text"
-              value={profileData.zipcode}
-              onChange={(e) => onProfileDataChange('zipcode', e.target.value)}
+              value={profileData.pincode ?? ''}
+              onChange={(e) => onProfileDataChange('pincode', e.target.value)}
               disabled={!isEditing}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
               placeholder="e.g., 201301"

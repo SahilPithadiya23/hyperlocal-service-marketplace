@@ -5,7 +5,6 @@ import { useContext } from "react";
 
 const ProfileSummary = ({ profileData, averageRating, totalJobs, onPhotoUpload, renderStars }) => {
   const { provider } = useContext(ServiceProviderDataContext);
-   console.log("ProfileSummary received profileData:", provider);
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
       <div className="flex flex-col items-center">
