@@ -41,6 +41,9 @@ const Header = () => {
             <a href="#why-us" className="text-gray-700 hover:text-blue-600">
               Why LocalServe
             </a>
+            <a href="#faq" className="text-gray-700 hover:text-blue-600">
+              FAQ
+            </a>
 
             {/* Auth Section */}
             {!user.loading && (
@@ -70,6 +73,9 @@ const Header = () => {
               </a>
               <a href="#why-us" className="text-gray-700">
                 Why LocalServe
+              </a>
+              <a href="#faq" className="text-gray-700">
+                FAQ
               </a>
 
              <IsLoginBtn/>

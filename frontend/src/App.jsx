@@ -21,6 +21,7 @@ import VerifyOtp from './pages/VerifyOtp';
 import UserProfile from './pages/UserProfile';
 import ResetPassword from './pages/ResetPassword';
 import ServiceProviderP from './pages/ServiceProviderProfileP'
+import ChatWidget from './components/chatbot/ChatWidget'
 const App = () => {
   return (
     <>
@@ -90,6 +91,7 @@ const App = () => {
         </SProtectRouter>
       } />
     </Routes>
+    <ChatWidget />
     </>
   )
 }

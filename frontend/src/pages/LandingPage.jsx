@@ -6,6 +6,7 @@ import CategoriesSection from "../components/landing/CategoriesSection";
 import SlidesSection from "../components/landing/SlidesSection"; 
 import HowItWorksSection from "../components/landing/HowItWorksSection";
 import StatsSection from "../components/landing/StatsSection";
+import FAQSection from "../components/landing/FAQSection";
 import Footer from "../components/landing/Footer";
 import Header from "../components/landing/Header";
 
@@ -39,6 +40,9 @@ const LandingPage = () => {
 
       {/* STATSSECTION */}
       <StatsSection/>
+
+      {/* FAQ */}
+      <FAQSection/>
 
       {/* FOOTER */}
       <Footer/>
