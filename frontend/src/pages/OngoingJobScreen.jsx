@@ -33,8 +33,30 @@ export default function OngoingJobScreen() {
   console.log("Job ID from URL:", customerdetails);
 
   // Dummy job data - in real app, this would come from API
-  
-  
+  const allJobs = {
+    "1": {
+      id: "1",
+      customerName: "Amit Sharma",
+      customerPhone: "+91 98765 43210",
+      serviceType: "AC Repair",
+      address: "123, Sector 15, Noida, Uttar Pradesh 201301",
+      startTime: "2:00 PM",
+      estimatedPrice: "₹800-1200",
+      basePrice: 800
+    },
+    "3": {
+      id: "3",
+      customerName: "Rahul Verma",
+      customerPhone: "+91 98765 54321",
+      serviceType: "Electrician",
+      address: "789, Phase 2, Delhi",
+      startTime: "2:00 PM",
+      estimatedPrice: "₹600-1000",
+      basePrice: 600
+    }
+  };
+
+  const job = allJobs[jobId] || allJobs["1"];
 
   const statusSteps = [
     { key: "accepted", label: "Accepted", icon: CheckCircle, completed: true },
@@ -175,6 +197,7 @@ console.log("Total Price:", customerdetails.basePrice, extraCharges, totalPrice)
           currentStatus={currentStatus}
           afterPhoto={afterPhoto}
           onCompleteJob={handleCompleteJob}
+          jobId={jobId}
         />
       </div>
 

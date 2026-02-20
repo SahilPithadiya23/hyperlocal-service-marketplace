@@ -208,3 +208,28 @@ exports.rejectBooking = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.completeBooking = async (req, res) => {
+  try {
+    const providerId = req.serviceprovider?._id;
+    const { id } = req.params;
+    if (!providerId) return res.status(401).json({ message: 'Unauthorized' });
+
+    const booking = await Booking.findById(id);
+    if (!booking) return res.status(404).json({ message: 'Booking not found' });
+    if (String(booking.provider) !== String(providerId)) {
+      return res.status(403).json({ message: 'Not your booking' });
+    }
+    if (booking.status === 'completed') {
+      return res.status(400).json({ message: 'Booking already completed' });
+    }
+
+    booking.status = 'completed';
+    booking.completedAt = new Date();
+    await booking.save();
+
+    res.status(200).json({ message: 'Booking marked as completed', booking });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

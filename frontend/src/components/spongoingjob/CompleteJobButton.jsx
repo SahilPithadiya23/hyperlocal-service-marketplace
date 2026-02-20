@@ -1,9 +1,20 @@
 import { CheckCircle } from "lucide-react";
+import axios from 'axios';
 
-export function CompleteJobButton({ currentStatus, afterPhoto, onCompleteJob }) {
+export function CompleteJobButton({ currentStatus, afterPhoto, onCompleteJob, jobId }) {
+  const handleClick = async () => {
+    try {
+      await axios.post(`http://localhost:3000/api/booking/${jobId}/complete`, {}, { withCredentials: true });
+      onCompleteJob();
+    } catch (err) {
+      console.error('Failed to mark completed:', err);
+      alert('Failed to mark job as completed.');
+    }
+  };
+
   return (
     <button
-      onClick={onCompleteJob}
+      onClick={handleClick}
       disabled={currentStatus !== "inprogress" || !afterPhoto}
       className={`w-full py-4 rounded-xl font-semibold transition flex items-center justify-center gap-2 ${
         currentStatus === "inprogress" && afterPhoto

@@ -21,8 +21,8 @@ router.get('/:id', authCommonMiddleware, bookingController.getBookingsProvider);
 router.post('/:id/accept', authSproviderMiddleware, bookingController.acceptBooking);
 router.post('/:id/reject', authSproviderMiddleware, bookingController.rejectBooking);
 
-// Update a booking
-// router.put('/:id', authCommonMiddleware, bookingController.updateBooking);
+// Mark booking completed (provider)
+router.post('/:id/complete', authSproviderMiddleware, bookingController.completeBooking);
 
 // Delete a booking
 router.delete('/:id', authCommonMiddleware, bookingController.deleteBooking);

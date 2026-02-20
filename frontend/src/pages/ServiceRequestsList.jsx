@@ -153,7 +153,7 @@ useEffect(() => {
   };
 
   const handleReject = async (requestId) => {
-    try {
+    
       await axios.post(`http://localhost:3000/api/booking/${requestId}/reject`, {}, { withCredentials: true });
       setServiceRequests(prevRequests => 
         prevRequests.map(request => 
@@ -163,10 +163,7 @@ useEffect(() => {
         )
       );
       setActiveFilter("rejected");
-    } catch (err) {
-      console.error("Failed to reject booking:", err);
-      alert("Failed to reject booking. Please try again.");
-    }
+   
   };
 
   const getStatusColor = (status) => {
