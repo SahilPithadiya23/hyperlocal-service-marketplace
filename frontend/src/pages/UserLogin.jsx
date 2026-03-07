@@ -12,26 +12,49 @@ const UserLogin = () => {
 
   async function submitHandler(e) {
     e.preventDefault();
+    
+    // Check for admin login
+    if (email === 'admin@admin.com' && password === 'admin123') {
+      const adminData = {
+        id: 1,
+        name: "Admin User",
+        email: "admin@admin.com",
+        role: "admin"
+      };
+      
+      // Set admin data in UserContext for admin functionality
+      setUser({
+        isAuth: true,
+        loading: false,
+        profile: adminData
+      });
+      
+      console.log('Admin login successful:', adminData);
+      navigate('/admin/dashboard');
+      return;
+    }
+    
+    // Normal user login
     const newUser = {
       email: email,
       password: password
     };
     try{
-    const response = await axios.post('http://localhost:3000/api/auth/user/login', newUser,{withCredentials:true});
-    if(response.status === 200){
-      const data = response.data.user;
-      setUser({
-        isAuth: true,
-        loading: false,
-        profile: data
-      });
-      console.log('Login successful:', user);
-      
-      navigate('/');
+      const response = await axios.post('http://localhost:3000/api/auth/user/login', newUser,{withCredentials:true});
+      if(response.status === 200){
+        const data = response.data.user;
+        setUser({
+          isAuth: true,
+          loading: false,
+          profile: data
+        });
+        console.log('Login successful:', user);
+        
+        navigate('/');
+      }
+    }catch(err){
+      setError(err.response?.data?.message || 'Login failed');
     }
-  }catch(err){
-    setError(err.response.data.message);
-  }
     setEmail('');
     setPassword('');
   } 
@@ -40,9 +63,19 @@ const UserLogin = () => {
   return (
     <div className='flex flex-col items-center min-h-screen justify-center bg-gray-100'>
       <div className="bg-white p-8 rounded shadow-md w-full  max-w-xl">
-        <h1 className="text-3xl font-bold  w-full text-center">
+        <h1 className="text-3xl font-bold  w-full text-center mb-6">
           Login
         </h1>
+        
+        {/* Admin credentials info */}
+        <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
+          <p className="text-sm text-blue-800 text-center">
+            <strong>Admin Access:</strong><br/>
+            Email: admin@admin.com<br/>
+            Password: admin123
+          </p>
+        </div>
+
         {error && <div className='bg-red-100 text-red-700 p-2 rounded mb-4 text-center'>{error}</div>}
         <form onSubmit={(e) => {submitHandler(e)}}>
           
