@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Briefcase, Search, Filter, ChevronLeft, ChevronRight, Eye, Edit, Trash2, Mail, Phone, MapPin, Calendar, Star, CheckCircle, Clock } from 'lucide-react';
+import axios from 'axios';
 
 const AdminProviders = () => {
   const [providers, setProviders] = useState([]);
@@ -12,6 +13,12 @@ const AdminProviders = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editFormData, setEditFormData] = useState({});
   const [isCreatingProvider, setIsCreatingProvider] = useState(false);
+  // Mail modal state
+  const [showMailModal, setShowMailModal] = useState(false);
+  const [mailTo, setMailTo] = useState('');
+  const [mailSubject, setMailSubject] = useState('');
+  const [mailMessage, setMailMessage] = useState('');
+  const [mailSending, setMailSending] = useState(false);
   const providersPerPage = 10;
 
   useEffect(() => {
@@ -28,6 +35,44 @@ const AdminProviders = () => {
     ];
     setProviders(mockProviders);
     setFilteredProviders(mockProviders);
+
+    // Fetch real providers from backend
+    const fetchProviders = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        const res = await axios.get('http://localhost:3000/api/admin/providers', { headers, withCredentials: true });
+        const data = res.data;
+        const providersFromApi = Array.isArray(data) ? data : (data.providers || data.data || []);
+
+        const mapped = providersFromApi.map(p => ({
+          id: p._id || p.id,
+          name:  `${(p.firstName || '').trim()} ${(p.lastName || '').trim()}`.trim() || p.email || 'Unknown',
+          email: p.email || '',
+          phone: p.phone || '',
+          category: p.serviceCategory || p.serviceCategory || 'General',
+          city: p.city || (p.address && p.address.city) || 'Unknown',
+          joinDate: p.createdAt ? String(p.createdAt).slice(0,10) : (p.joinDate || ''),
+          status: (typeof p.isAvailable === 'boolean') ? (p.isAvailable ? 'active' : 'inactive') : (p.status || 'active'),
+          rating: p.averageRating || p.rating || 2,
+          jobs: p.totalJobs || 2,
+          completed: p.completed || 0
+        }));
+
+        if (mapped.length) {
+          setProviders(mapped);
+          setFilteredProviders(mapped);
+          console.log('AdminProviders loaded from API, count:', mapped.length);
+        } else {
+          console.log('AdminProviders: API returned no providers, keeping mock data');
+        }
+      } catch (err) {
+        console.error('Failed to load providers from API', err);
+      }
+    };
+
+    fetchProviders();
   }, []);
 
   useEffect(() => {
@@ -89,25 +134,90 @@ const AdminProviders = () => {
     });
     setShowEditModal(true);
   };
+  // Open mail modal (no network call here)
+  const handleMailToProvider = (email) => {
+    setMailTo(email || '');
+    setMailSubject('Hello from Admin');
+    setMailMessage('Dear provider,\n\n');
+    setShowMailModal(true);
+  };
+  
+  const sendMailToProvider = async () => {
+    if (!mailSubject || !mailMessage) {
+      alert('Subject and message are required');
+      return;
+    }
 
-  const handleToggleProviderStatus = (provider) => {
+    setMailSending(true);
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const payload = { email: mailTo, subject: mailSubject, message: mailMessage };
+      const res = await axios.post('http://localhost:3000/api/admin/provider/mail', payload, { headers, withCredentials: true });
+      if (res.status === 200) {
+        alert('Email sent to provider');
+        setShowMailModal(false);
+      } else {
+        alert('Failed to send email to provider');
+      }
+    } catch (err) {
+      console.error('Failed to send email to provider', err);
+      alert('Failed to send email to provider');
+    } finally {
+      setMailSending(false);
+    }
+  };
+  const handleToggleProviderStatus = async (provider) => {
     const newStatus = provider.status === 'active' ? 'inactive' : 'active';
-    if (window.confirm(`Are you sure you want to ${newStatus === 'active' ? 'activate' : 'deactivate'} ${provider.name}?`)) {
-      setProviders(providers.map(p =>
-        p.id === provider.id ? { ...p, status: newStatus } : p
-      ));
+    if (!window.confirm(`Are you sure you want to ${newStatus === 'active' ? 'activate' : 'deactivate'} ${provider.name}?`)) return;
+
+    // Optimistic UI
+    const prevProviders = providers;
+    setProviders(providers.map(p => p.id === provider.id ? { ...p, status: newStatus } : p));
+    setFilteredProviders(filteredProviders.map(p => p.id === provider.id ? { ...p, status: newStatus } : p));
+
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      // Backend expects isAvailable boolean
+      const payload = { isAvailable: newStatus === 'active' };
+      await axios.put(`http://localhost:3000/api/admin/update-providers/${provider.id}`, payload, { headers, withCredentials: true });
+      console.log('Provider status updated on server:', provider.id);
+    } catch (err) {
+      console.error('Failed to update provider status on server', err);
+      // revert
+      setProviders(prevProviders);
+      setFilteredProviders(prevProviders);
+      alert('Failed to update provider status on server. Reverted changes.');
     }
   };
 
-  const handleDeleteProvider = (providerId) => {
-    if (window.confirm('Are you sure you want to delete this provider?')) {
-      setProviders(providers.filter(provider => provider.id !== providerId));
+  const handleDeleteProvider = async (providerId) => {
+    if (!window.confirm('Are you sure you want to delete this provider?')) return;
+
+    const prev = providers;
+    // optimistic UI
+    setProviders(providers.filter(provider => provider.id !== providerId));
+    setFilteredProviders(filteredProviders.filter(provider => provider.id !== providerId));
+
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      await axios.delete(`http://localhost:3000/api/admin/delete-providers/${providerId}`, { headers, withCredentials: true });
+      console.log('Provider deleted on server:', providerId);
+    } catch (err) {
+      console.error('Failed to delete provider on server', err);
+      // revert UI
+      setProviders(prev);
+      setFilteredProviders(prev);
+      alert('Failed to delete provider on server. Reverted changes.');
     }
   };
 
-  const handleSaveProvider = () => {
+  const handleSaveProvider = async () => {
     if (isCreatingProvider) {
-      const nextId = providers.length ? Math.max(...providers.map(p => p.id)) + 1 : 1;
+      const nextId = providers.length ? Math.max(...providers.map(p => Number(p.id) || 0)) + 1 : 1;
       const today = new Date().toISOString().slice(0, 10);
       const newProvider = {
         id: nextId,
@@ -123,6 +233,7 @@ const AdminProviders = () => {
         completed: 0
       };
       setProviders([newProvider, ...providers]);
+      setFilteredProviders([newProvider, ...filteredProviders]);
       setShowEditModal(false);
       setIsCreatingProvider(false);
       setSelectedProvider(null);
@@ -131,14 +242,47 @@ const AdminProviders = () => {
     }
 
     if (selectedProvider) {
-      setProviders(providers.map(provider =>
-        provider.id === selectedProvider.id
-          ? { ...provider, ...editFormData }
-          : provider
-      ));
-      setShowEditModal(false);
-      setSelectedProvider(null);
-      setEditFormData({});
+      try {
+        const token = localStorage.getItem('token');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        // Prepare payload mapping UI fields to backend fields
+        const payload = {
+          serviceName: editFormData.name,
+          email: editFormData.email,
+          phone: editFormData.phone,
+          serviceCategory: editFormData.category,
+          city: editFormData.city,
+          isAvailable: editFormData.status === 'active'
+        };
+
+        const res = await axios.put(`http://localhost:3000/api/admin/update-providers/${selectedProvider.id}`, payload, { headers, withCredentials: true });
+        const updated = res.data.provider || res.data;
+
+        const mapped = {
+          id: updated._id || updated.id || selectedProvider.id,
+          name: updated.name || `${updated.firstName || ''} ${updated.lastName || ''}`.trim() || updated.email || editFormData.name,
+          email: updated.email || editFormData.email,
+          phone: updated.phone || editFormData.phone,
+          category: updated.serviceCategory || editFormData.category,
+          city: updated.city || editFormData.city,
+          joinDate: updated.createdAt ? String(updated.createdAt).slice(0,10) : selectedProvider.joinDate,
+          status: (typeof updated.isAvailable === 'boolean') ? (updated.isAvailable ? 'active' : 'inactive') : (selectedProvider.status || editFormData.status),
+          rating: updated.averageRating || selectedProvider.rating,
+          jobs: updated.totalJobs || selectedProvider.jobs,
+          completed: updated.completed || selectedProvider.completed
+        };
+
+        setProviders(providers.map(p => p.id === selectedProvider.id ? mapped : p));
+        setFilteredProviders(filteredProviders.map(p => p.id === selectedProvider.id ? mapped : p));
+
+        setShowEditModal(false);
+        setSelectedProvider(null);
+        setEditFormData({});
+      } catch (err) {
+        console.error('Failed to update provider on server', err);
+        alert('Failed to update provider on server. Changes not saved.');
+      }
     }
   };
 
@@ -193,7 +337,7 @@ const AdminProviders = () => {
               <button
                 onClick={exportProvidersCsv}
                 className="px-4 py-2 border border-blue-300 text-white rounded-lg hover:bg-blue-700 transition"
-              >
+                >
                 Export Providers
               </button>
             </div>
@@ -280,7 +424,7 @@ const AdminProviders = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <div className="text-xs text-gray-500">{provider.completed}/{provider.jobs}</div>
+                      <div className="text-xs text-gray-500">{provider.jobs}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -291,6 +435,13 @@ const AdminProviders = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleMailToProvider(provider.email)}
+                          className="text-gray-600 hover:text-gray-900"
+                          title="Send Email"
+                        >
+                          <Mail className="w-4 h-4" />
+                        </button>
                         <button
                           onClick={() => handleViewProvider(provider)}
                           className="text-blue-600 hover:text-blue-900"
@@ -539,6 +690,68 @@ const AdminProviders = () => {
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mail Modal */}
+      {showMailModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-lg w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Send Email to Provider</h3>
+              <button
+                onClick={() => setShowMailModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+                aria-label="Close mail modal"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">To</label>
+                <input
+                  type="email"
+                  value={mailTo}
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                <input
+                  type="text"
+                  value={mailSubject}
+                  onChange={(e) => setMailSubject(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                <textarea
+                  value={mailMessage}
+                  onChange={(e) => setMailMessage(e.target.value)}
+                  rows={8}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowMailModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={sendMailToProvider}
+                disabled={mailSending}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              >
+                {mailSending ? 'Sending...' : 'Send Email'}
               </button>
             </div>
           </div>

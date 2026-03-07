@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Calendar, Search, Filter, ChevronLeft, ChevronRight, Eye, Trash2 } from 'lucide-react';
+import axios from 'axios';
 
 const AdminBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -12,17 +13,45 @@ const AdminBookings = () => {
   const bookingsPerPage = 10;
 
   useEffect(() => {
-    const mockBookings = [
-      { id: 'BK001', userName: 'Priya Sharma', userEmail: 'priya@email.com', providerName: 'John Plumbing', providerCategory: 'Plumbing', city: 'Mumbai', date: '2024-01-20', time: '10:00 AM', status: 'completed', amount: 799, address: 'Mumbai - 400001', issue: 'Tap leakage' },
-      { id: 'BK002', userName: 'Rahul Verma', userEmail: 'rahul@email.com', providerName: 'CleanPro Services', providerCategory: 'Cleaning', city: 'Delhi', date: '2024-01-20', time: '01:00 PM', status: 'pending', amount: 499, address: 'Delhi - 110001', issue: 'Bathroom cleaning' },
-      { id: 'BK003', userName: 'Anjali Patel', userEmail: 'anjali@email.com', providerName: 'TechFix Solutions', providerCategory: 'AC Repair', city: 'Bangalore', date: '2024-01-19', time: '04:00 PM', status: 'accepted', amount: 999, address: 'Bangalore - 560001', issue: 'AC not cooling' },
-      { id: 'BK004', userName: 'Amit Kumar', userEmail: 'amit@email.com', providerName: 'Quick Electrical', providerCategory: 'Electrical', city: 'Mumbai', date: '2024-01-19', time: '11:00 AM', status: 'completed', amount: 649, address: 'Mumbai - 400002', issue: 'Switch board repair' },
-      { id: 'BK005', userName: 'Sneha Reddy', userEmail: 'sneha@email.com', providerName: 'John Plumbing', providerCategory: 'Plumbing', city: 'Hyderabad', date: '2024-01-18', time: '05:30 PM', status: 'cancelled', amount: 0, address: 'Hyderabad - 500001', issue: 'Pipe installation' },
-      { id: 'BK006', userName: 'Rohit Sharma', userEmail: 'rohit@email.com', providerName: 'Garden Care', providerCategory: 'Gardening', city: 'Delhi', date: '2024-01-18', time: '09:00 AM', status: 'accepted', amount: 399, address: 'Delhi - 110002', issue: 'Lawn trimming' },
-    ];
+    const fetchBookings = async () => {
+      try {
+        const res = await axios.get('http://localhost:3000/api/admin/recent-bookings?limit=0', { withCredentials: true });
+        const data = (res.data && res.data.recentBookings) || [];
 
-    setBookings(mockBookings);
-    setFilteredBookings(mockBookings);
+        const mapped = data.map(b => ({
+          id: String(b.id),
+          userName: b.user || b.userEmail || 'Unknown',
+          userEmail: b.userEmail || '',
+          providerName: b.provider || b.providerName || 'Unknown Provider',
+          providerCategory: b.service || '',
+          city: b.city || '',
+          date: b.date || (b.createdAt ? new Date(b.createdAt).toISOString().slice(0,10) : ''),
+          time: b.time || '',
+          status: b.status || 'pending',
+          amount: b.status === 'rejected' ? 0 : (b.amount != null ? b.amount : 0), // if rejected, show 0 amount
+          address: b.address || '',
+          issue: b.issue || ''
+        }));
+
+        setBookings(mapped);
+        setFilteredBookings(mapped);
+      } catch (err) {
+        console.error('Failed to load bookings from backend, using fallback mock', err);
+        const mockBookings = [
+          { id: 'BK001', userName: 'Priya Sharma', userEmail: 'priya@email.com', providerName: 'John Plumbing', providerCategory: 'Plumbing', city: 'Mumbai', date: '2024-01-20', time: '10:00 AM', status: 'completed', amount: 799, address: 'Mumbai - 400001', issue: 'Tap leakage' },
+          { id: 'BK002', userName: 'Rahul Verma', userEmail: 'rahul@email.com', providerName: 'CleanPro Services', providerCategory: 'Cleaning', city: 'Delhi', date: '2024-01-20', time: '01:00 PM', status: 'pending', amount: 499, address: 'Delhi - 110001', issue: 'Bathroom cleaning' },
+          { id: 'BK003', userName: 'Anjali Patel', userEmail: 'anjali@email.com', providerName: 'TechFix Solutions', providerCategory: 'AC Repair', city: 'Bangalore', date: '2024-01-19', time: '04:00 PM', status: 'accepted', amount: 999, address: 'Bangalore - 560001', issue: 'AC not cooling' },
+          { id: 'BK004', userName: 'Amit Kumar', userEmail: 'amit@email.com', providerName: 'Quick Electrical', providerCategory: 'Electrical', city: 'Mumbai', date: '2024-01-19', time: '11:00 AM', status: 'completed', amount: 649, address: 'Mumbai - 400002', issue: 'Switch board repair' },
+          { id: 'BK005', userName: 'Sneha Reddy', userEmail: 'sneha@email.com', providerName: 'John Plumbing', providerCategory: 'Plumbing', city: 'Hyderabad', date: '2024-01-18', time: '05:30 PM', status: 'cancelled', amount: 0, address: 'Hyderabad - 500001', issue: 'Pipe installation' },
+          { id: 'BK006', userName: 'Rohit Sharma', userEmail: 'rohit@email.com', providerName: 'Garden Care', providerCategory: 'Gardening', city: 'Delhi', date: '2024-01-18', time: '09:00 AM', status: 'accepted', amount: 399, address: 'Delhi - 110002', issue: 'Lawn trimming' },
+        ];
+
+        setBookings(mockBookings);
+        setFilteredBookings(mockBookings);
+      }
+    };
+
+    fetchBookings();
   }, []);
 
   useEffect(() => {
@@ -65,9 +94,25 @@ const AdminBookings = () => {
     setShowModal(true);
   };
 
-  const handleDeleteBooking = (bookingId) => {
-    if (window.confirm('Are you sure you want to delete this booking?')) {
-      setBookings(prev => prev.filter(b => b.id !== bookingId));
+  const handleDeleteBooking = async (bookingId) => {
+    if (!window.confirm('Are you sure you want to delete this booking?')) return;
+
+    // optimistic UI update
+    const prevBookings = bookings;
+    setBookings(prev => prev.filter(b => b.id !== bookingId));
+    setFilteredBookings(prev => prev.filter(b => b.id !== bookingId));
+
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      await axios.delete(`http://localhost:3000/api/admin/delete-booking/${bookingId}`, { headers, withCredentials: true });
+      console.log('Deleted booking on server:', bookingId);
+    } catch (err) {
+      console.error('Failed to delete booking on server', err);
+      // revert UI
+      setBookings(prevBookings);
+      setFilteredBookings(prevBookings);
+      alert('Failed to delete booking on server. Changes reverted.');
     }
   };
 
@@ -269,19 +314,19 @@ const AdminBookings = () => {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">User</span>
-                <span className="text-sm text-gray-900">{selectedBooking.userName}</span>
+                <span className="text-sm font-semibold text-gray-900">{selectedBooking.userName}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Provider</span>
-                <span className="text-sm text-gray-900">{selectedBooking.providerName}</span>
+                <span className="text-sm font-semibold text-gray-900">{selectedBooking.providerName}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Category</span>
-                <span className="text-sm text-gray-900">{selectedBooking.providerCategory}</span>
+                <span className="text-sm font-semibold text-gray-900">{selectedBooking.providerCategory}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Schedule</span>
-                <span className="text-sm text-gray-900">{selectedBooking.date}, {selectedBooking.time}</span>
+                <span className="text-sm font-semibold text-gray-900">{selectedBooking.date}, {selectedBooking.time}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Status</span>

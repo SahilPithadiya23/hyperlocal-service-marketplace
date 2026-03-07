@@ -14,7 +14,17 @@ const UserLogin = () => {
     e.preventDefault();
     
     // Check for admin login
-    if (email === 'admin@admin.com' && password === 'admin123') {
+   
+    // Normal user login
+    const newUser = {
+      email: email,
+      password: password
+    };
+    try{
+      const response = await axios.post('http://localhost:3000/api/auth/user/login', newUser,{withCredentials:true});
+     
+      if(response.status === 200){
+       if (email === 'admin@admin.com' && password === 'admin123') {
       const adminData = {
         id: 1,
         name: "Admin User",
@@ -34,14 +44,7 @@ const UserLogin = () => {
       return;
     }
     
-    // Normal user login
-    const newUser = {
-      email: email,
-      password: password
-    };
-    try{
-      const response = await axios.post('http://localhost:3000/api/auth/user/login', newUser,{withCredentials:true});
-      if(response.status === 200){
+
         const data = response.data.user;
         setUser({
           isAuth: true,

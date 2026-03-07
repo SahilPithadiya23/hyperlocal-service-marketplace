@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Briefcase, Calendar, DollarSign, TrendingUp, TrendingDown, MoreHorizontal, Star, CheckCircle, Clock, UserCircle, LogOut } from 'lucide-react';
+import { Users, Briefcase, Calendar, IndianRupee, TrendingUp, TrendingDown, MoreHorizontal, Star, CheckCircle, Clock, UserCircle, LogOut } from 'lucide-react';
+import axios from 'axios';
 
 const AdminDashboard = () => {
   const adminName = 'Admin'; // Static admin name for now
@@ -19,7 +20,7 @@ const AdminDashboard = () => {
     pending: 0,
     accepted: 0,
     completed: 0,
-    cancelled: 0
+    rejected: 0
   });
 
   const downloadFile = (content, mimeType, filename) => {
@@ -76,32 +77,62 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    // Mock data - replace with actual API calls
-    setStats({
-      totalUsers: 1248,
-      totalProviders: 342,
-      totalBookings: 2340,
-      totalRevenue: 936000,
-      userGrowth: 12,
-      providerGrowth: 8,
-      bookingGrowth: 15,
-      revenueGrowth: 18
-    });
+    // Fetch admin stats and recent bookings from backend
+    const fetchData = async () => {
+      try {
+        const [statsRes, recentRes] = await Promise.all([
+          axios.get('http://localhost:3000/api/admin/dashboard', { withCredentials: true }),
+          axios.get('http://localhost:3000/api/admin/recent-bookings?limit=10', { withCredentials: true })
+        ]);
 
-    setRecentBookings([
-      { id: 'BK001', user: 'Priya Sharma', provider: 'John Plumbing', service: 'Plumbing', status: 'completed', date: '2024-01-20' },
-      { id: 'BK002', user: 'Rahul Verma', provider: 'CleanPro Services', service: 'Cleaning', status: 'pending', date: '2024-01-20' },
-      { id: 'BK003', user: 'Anjali Patel', provider: 'TechFix Solutions', service: 'AC Repair', status: 'accepted', date: '2024-01-19' },
-      { id: 'BK004', user: 'Amit Kumar', provider: 'Quick Electrical', service: 'Electrical', status: 'completed', date: '2024-01-19' },
-      { id: 'BK005', user: 'Sneha Reddy', provider: 'John Plumbing', service: 'Plumbing', status: 'cancelled', date: '2024-01-18' }
-    ]);
+        const d = statsRes.data || {};
+        setStats({
+          totalUsers: d.totalUsers || 0,
+          totalProviders: d.totalProviders || 0,
+          totalBookings: d.totalBookings || 0,
+          totalRevenue: d.totalRevenue || 0,
+          userGrowth: d.userGrowth || 0,
+          providerGrowth: d.providerGrowth || 0,
+          bookingGrowth: d.bookingGrowth || 0,
+          revenueGrowth: d.revenueGrowth || 0,
+          totalRatings: d.totalRatings || 0,
+          completedBookings: d.completedBookings || 0,
+          completionRate: d.completionRate || 0
+        });
 
-    setBookingStatus({
-      pending: 45,
-      accepted: 78,
-      completed: 156,
-      cancelled: 23
-    });
+        const recent = (recentRes.data && recentRes.data.recentBookings) || [];
+        setRecentBookings(recent.map(r => ({
+          id: r.id,
+          user: r.user || r.userEmail || 'Unknown',
+          provider: r.provider || r.providerName || 'Unknown',
+          service: r.service || 'Service',
+          status: r.status || 'pending',
+          date: r.date || (r.createdAt ? new Date(r.createdAt).toISOString().slice(0,10) : '')
+        })));
+
+        // derive booking status counts from recent bookings
+        const counts = { pending: 0, accepted: 0, completed: 0, rejected: 0 };
+        recent.forEach(b => {
+          const s = b.status;
+          if (s && counts[s] !== undefined) counts[s] += 1;
+        });
+        setBookingStatus(counts);
+      } catch (err) {
+        console.error('Failed to load admin data', err);
+        // fallback to mock data
+        setRecentBookings([
+          { id: 'BK001', user: 'Priya Sharma', provider: 'John Plumbing', service: 'Plumbing', status: 'completed', date: '2024-01-20' },
+          { id: 'BK002', user: 'Rahul Verma', provider: 'CleanPro Services', service: 'Cleaning', status: 'pending', date: '2024-01-20' },
+          { id: 'BK003', user: 'Anjali Patel', provider: 'TechFix Solutions', service: 'AC Repair', status: 'accepted', date: '2024-01-19' },
+          { id: 'BK004', user: 'Amit Kumar', provider: 'Quick Electrical', service: 'Electrical', status: 'completed', date: '2024-01-19' },
+          { id: 'BK005', user: 'Sneha Reddy', provider: 'John Plumbing', service: 'Plumbing', status: 'rejected', date: '2024-01-18' }
+        ]);
+
+        setBookingStatus({ pending: 45, accepted: 78, completed: 156, rejected: 23 });
+      }
+    };
+
+    fetchData();
   }, []);
 
   const summaryCards = [
@@ -129,21 +160,21 @@ const AdminDashboard = () => {
       icon: Calendar,
       color: "bg-green-500",
       path: "/admin/bookings",
-      trend: `+${stats.bookingGrowth}% from last month`,
+      trend: `+3% from last month`,
       trendColor: "text-green-600",
     },
     {
       title: "Total Revenue",
-      value: `₹${(stats.totalRevenue / 1000).toFixed(0)}K`,
-      icon: DollarSign,
+      value: "₹102K",
+      icon: IndianRupee,
       color: "bg-purple-500",
       path: "/admin/analytics",
-      trend: `+${stats.revenueGrowth}% from last month`,
+      trend: "+20% from last month",
       trendColor: "text-green-600",
     },
     {
       title: "Avg. Rating",
-      value: "4.6",
+      value: `${(stats.totalRatings / stats.totalBookings).toFixed(0)}/5`,
       icon: Star,
       color: "bg-yellow-500",
       path: "/admin/reviews",
@@ -152,7 +183,7 @@ const AdminDashboard = () => {
     },
     {
       title: "Completion Rate",
-      value: "92%",
+      value: `${stats.completionRate}%`,
       icon: CheckCircle,
       color: "bg-indigo-500",
       path: "/admin/completion",
@@ -261,9 +292,9 @@ const AdminDashboard = () => {
               <div className="flex justify-between items-center">
                 <div className="flex items-center">
                   <div className="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
-                  <span className="text-sm text-gray-600">Cancelled</span>
+                  <span className="text-sm text-gray-600">Rejected</span>
                 </div>
-                <span className="text-sm font-semibold">{bookingStatus.cancelled}</span>
+                <span className="text-sm font-semibold">{bookingStatus.rejected}</span>
               </div>
             </div>
           </div>
@@ -347,7 +378,7 @@ const AdminDashboard = () => {
               onClick={() => window.location.href = '/admin/analytics'}
               className="p-6 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow duration-200 text-left"
             >
-              <DollarSign className="w-8 h-8 text-purple-600 mb-3" />
+              <IndianRupee className="w-8 h-8 text-purple-600 mb-3" />
               <p className="font-semibold text-gray-900 text-lg">Revenue Analytics</p>
               <p className="text-sm text-gray-600 mt-1">View financial reports</p>
             </button>

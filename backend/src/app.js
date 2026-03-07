@@ -9,6 +9,7 @@ const bookingRoutes = require('./routes/booking.routes');
 const serviceRequestListRoutes = require('./routes/serverrequestlist.route');
 const servicePhotoRoutes = require('./routes/servicePhoto.routes');
 const chatRoutes = require('./routes/chat.routes');
+const adminRoutes = require('./routes/admin.routes');
 const path = require('path');
 const cors = require('cors');
 const app = express();
@@ -29,6 +30,7 @@ app.use('/api/booking', bookingRoutes);
 app.use('/api/servicerequests', serviceRequestListRoutes);
 app.use('/api/servicephoto', servicePhotoRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/admin', adminRoutes);
 app.get('/', (req, res) => {    
     res.send('Hello World!');
 });

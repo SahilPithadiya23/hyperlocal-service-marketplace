@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { CheckCircle, Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import axios from 'axios';
 
 const AdminCompletionRate = () => {
   const [providers, setProviders] = useState([]);
@@ -19,8 +20,41 @@ const AdminCompletionRate = () => {
       { id: 6, name: 'Car Wash Pro', email: 'car@wash.com', category: 'Car Wash', city: 'Bangalore', status: 'active', totalJobs: 36, completedJobs: 34, cancelledJobs: 1, rejectedJobs: 1 },
     ];
 
+    // set mock first so UI stays responsive, then try backend
     setProviders(mockProviders);
     setFilteredProviders(mockProviders);
+
+    const fetchCompletion = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await axios.get('http://localhost:3000/api/admin/completion/summary?page=1&limit=100', { headers, withCredentials: true });
+        const data = res.data || {};
+        const providersFromApi = Array.isArray(data.providers) ? data.providers : (data.providers || []);
+
+        if (!providersFromApi || !providersFromApi.length) return; // keep mock
+
+        const mapped = providersFromApi.map(p => ({
+          id: p.id || p._id,
+          name:  p.name ,
+          email: p.email || '',
+          category: p.serviceCategory || 'General',
+          city: p.city || '',
+          status: (typeof p.isAvailable === 'boolean') ? (p.isAvailable ? 'active' : 'inactive') : (p.status || 'active'),
+          totalJobs: Number(p.totalJobs || p.totalJobs === 0 ? p.totalJobs : 0),
+          completedJobs: Number(p.completedJobs || 0),
+          cancelledJobs: Number(p.cancelledJobs || 0),
+          rejectedJobs: Number(p.rejectedJobs || 0)
+        }));
+
+        setProviders(mapped);
+        setFilteredProviders(mapped);
+      } catch (err) {
+        console.error('Failed to load completion summary from API', err);
+      }
+    };
+
+    fetchCompletion();
   }, []);
 
   useEffect(() => {

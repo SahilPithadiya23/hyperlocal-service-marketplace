@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Star, Search, Filter, ChevronLeft, ChevronRight, Eye, Trash2 } from 'lucide-react';
+import axios from 'axios';
 
 const AdminReviews = () => {
   const [providers, setProviders] = useState([]);
@@ -29,8 +30,44 @@ const AdminReviews = () => {
       { id: 5, name: 'Garden Care', email: 'garden@care.com', category: 'Gardening', city: 'Delhi', averageRating: 4.5, totalReviews: 27, completedJobs: 38, status: 'active', recentReviews: [] },
     ];
 
+    // set mock first so UI is responsive, then try backend
     setProviders(mockProviders);
     setFilteredProviders(mockProviders);
+
+    const fetchSummary = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await axios.get('http://localhost:3000/api/admin/reviews/summary?page=1&limit=50', { headers, withCredentials: true });
+        const data = res.data || {};
+        const providersFromApi = Array.isArray(data.providers) ? data.providers : (data.providers || []);
+
+        if (!providersFromApi || !providersFromApi.length) {
+          // no data - keep mock
+          return;
+        }
+
+        const mapped = providersFromApi.map(p => ({
+          id: p.id || p._id,
+          name:    `${(p.firstName || '').trim()} ${(p.lastName || '').trim()}`.trim() || p.email || 'Unknown',
+          email: p.email || '',
+          category: p.serviceCategory || 'General',
+          city: p.city || 'Unknown',
+          averageRating: p.averageRating || 0,
+          totalReviews: p.totalReviews || 0,
+          completedJobs: p.completedJobs || 0,
+          status: (typeof p.isAvailable === 'boolean') ? (p.isAvailable ? 'active' : 'inactive') : (p.status || 'active'),
+          recentReviews: (p.recentReviews || []).map(r => ({ id: r.id || r._id, user: r.user || (r.userName) || null, rating: r.rating, comment: r.comment, date: r.date || r.createdAt }))
+        }));
+
+        setProviders(mapped);
+        setFilteredProviders(mapped);
+      } catch (err) {
+        console.error('Failed to load review summary from API', err);
+      }
+    };
+
+    fetchSummary();
   }, []);
 
   useEffect(() => {
@@ -89,19 +126,47 @@ const AdminReviews = () => {
     URL.revokeObjectURL(url);
   };
 
-  const handleViewProvider = (provider) => {
-    setSelectedProvider(provider);
-    setShowModal(true);
+  // replace view handler to fetch provider reviews from backend
+  const handleViewProvider = async (provider) => {
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await axios.get(`http://localhost:3000/api/admin/providers/${provider.id}/reviews?page=1&limit=20`, { headers, withCredentials: true });
+      const data = res.data || {};
+      const reviews = Array.isArray(data.reviews) ? data.reviews : (data.reviews || []);
+      const recentReviews = reviews.map(r => ({ id: r.id || r._id, user: r.user || (r.userName) || null, rating: r.rating, comment: r.comment, date: r.date || r.createdAt }));
+
+      setSelectedProvider({ ...provider, recentReviews });
+      setShowModal(true);
+    } catch (err) {
+      console.error('Failed to fetch provider reviews', err);
+      setSelectedProvider(provider);
+      setShowModal(true);
+    }
   };
 
-  const handleDeleteReview = (reviewId) => {
+  // replace delete handler to call backend
+  const handleDeleteReview = async (reviewId) => {
     if (!selectedProvider) return;
-    if (window.confirm('Are you sure you want to delete this review?')) {
-      setProviders(prev => prev.map(p => {
-        if (p.id !== selectedProvider.id) return p;
-        const nextRecent = (p.recentReviews || []).filter(r => r.id !== reviewId);
-        return { ...p, recentReviews: nextRecent };
-      }));
+    if (!window.confirm('Are you sure you want to delete this review?')) return;
+
+    // optimistic UI
+    const prev = providers;
+    setProviders(prevProviders => prevProviders.map(p => {
+      if (p.id !== selectedProvider.id) return p;
+      const nextRecent = (p.recentReviews || []).filter(r => r.id !== reviewId);
+      return { ...p, recentReviews: nextRecent };
+    }));
+
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      await axios.delete(`http://localhost:3000/api/admin/reviews/${reviewId}`, { headers, withCredentials: true });
+      setSelectedProvider(prevSel => prevSel ? { ...prevSel, recentReviews: (prevSel.recentReviews || []).filter(r => r.id !== reviewId) } : prevSel);
+    } catch (err) {
+      console.error('Failed to delete review on server', err);
+      setProviders(prev);
+      alert('Failed to delete review on server. Reverted changes.');
     }
   };
 
@@ -131,6 +196,7 @@ const AdminReviews = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Overall Avg Rating (Filtered)</p>
+              
               <div className="flex items-center gap-2">
                 <Star className="w-5 h-5 text-yellow-400" />
                 <p className="text-2xl font-bold text-gray-900">{overallAvg}</p>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Users, Search, Filter, ChevronLeft, ChevronRight, Eye, Edit, Trash2, Mail, Phone, MapPin, Calendar, CheckCircle, Clock } from 'lucide-react';
 
 const AdminUsers = () => {
@@ -12,7 +13,14 @@ const AdminUsers = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editFormData, setEditFormData] = useState({});
   const [isCreatingUser, setIsCreatingUser] = useState(false);
-  const usersPerPage = 10;
+
+  // Mail modal state (reused UX from Providers.jsx)
+  const [showMailModal, setShowMailModal] = useState(false);
+  const [mailTo, setMailTo] = useState('');
+  const [mailSubject, setMailSubject] = useState('');
+  const [mailMessage, setMailMessage] = useState('');
+  const [mailSending, setMailSending] = useState(false);
+   const usersPerPage = 10;
 
   useEffect(() => {
     // Load mock data immediately to avoid blank page
@@ -26,11 +34,51 @@ const AdminUsers = () => {
       { id: 7, name: 'Neha Gupta', email: 'neha@email.com', phone: '+91 9876543216', city: 'Bangalore', joinDate: '2024-01-09', status: 'active', bookings: 18 },
       { id: 8, name: 'Rohit Sharma', email: 'rohit@email.com', phone: '+91 9876543217', city: 'Mumbai', joinDate: '2024-01-08', status: 'inactive', bookings: 3 },
     ];
-    
+
+    // show mock data immediately while we fetch real data
     setUsers(mockUsers);
     setFilteredUsers(mockUsers);
-    
     console.log('AdminUsers loaded with mock data');
+
+    // Fetch real users from backend and replace mock data when ready
+    const fetchUsers = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        const res = await axios.get('http://localhost:3000/api/admin/users', {
+          headers,
+          withCredentials: true
+        });
+
+        const data = res.data;
+        const usersFromApi = Array.isArray(data) ? data : (data.users || data.data || []);
+
+        const mapped = usersFromApi.map(u => ({
+          id: u._id || u.id,
+          name: u.name || `${(u.firstName || '').trim()} ${(u.lastName || '').trim()}`.trim() || u.email || 'Unknown',
+          email: u.email || '',
+          phone: u.phone || u.mobile || '',
+          city: u.city || (u.address && u.address.city) || 'Unknown',
+          joinDate: u.createdAt ? String(u.createdAt).slice(0,10) : (u.joinDate || ''),
+          status: u.status || 'active',
+          bookings: u.totalBookings || 1
+        }));
+
+        if (mapped.length) {
+          setUsers(mapped);
+          setFilteredUsers(mapped);
+          console.log('AdminUsers loaded from API, count:', mapped.length);
+        } else {
+          console.log('AdminUsers: API returned no users, keeping mock data');
+        }
+      } catch (err) {
+        console.error('Failed to load users from API', err);
+        // keep mock data as fallback
+      }
+    };
+
+    fetchUsers();
   }, []);
 
   useEffect(() => {
@@ -100,14 +148,69 @@ const AdminUsers = () => {
     }
   };
 
-  const handleDeleteUser = (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      setUsers(users.filter(user => user.id !== userId));
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+
+    // Optimistic UI: remove locally first, attempt backend delete
+    const prev = users;
+    setUsers(users.filter(user => user.id !== userId));
+    setFilteredUsers(filteredUsers.filter(user => user.id !== userId));
+
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      await axios.delete(`http://localhost:3000/api/admin/delete-user/${userId}`, { headers, withCredentials: true });
+      console.log('User deleted on server:', userId);
+    } catch (err) {
+      console.error('Failed to delete user on server', err);
+      // revert UI change
+      setUsers(prev);
+      setFilteredUsers(prev);
+      alert('Failed to delete user on server. Reverted changes.');
+    }
+  };
+  // Open mail modal for user
+  const handleMailUser = (user) => {
+    setMailTo(user?.email || '');
+    setMailSubject(`Hello ${user?.name || ''}`);
+    setMailMessage('Dear user,\n\n');
+    setShowMailModal(true);
+  };
+
+  const sendMailToUser = async () => {
+    if (!mailSubject || !mailMessage) {
+      alert('Subject and message are required');
+      return;
+    }
+
+    if (!mailTo) {
+      alert('Recipient email is missing');
+      return;
+    }
+
+    setMailSending(true);
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const payload = { email: mailTo, subject: mailSubject, message: mailMessage };
+      const res = await axios.post('http://localhost:3000/api/admin/user/mail', payload, { headers, withCredentials: true });
+      if (res.status === 200) {
+        alert('Email sent to user');
+        setShowMailModal(false);
+      } else {
+        alert('Failed to send email to user');
+      }
+    } catch (err) {
+      console.error('Failed to send email to user', err);
+      alert('Failed to send email to user');
+    } finally {
+      setMailSending(false);
     }
   };
 
-  const handleSaveUser = () => {
+  const handleSaveUser = async () => {
     if (isCreatingUser) {
+      // no admin create endpoint implemented — keep local behavior
       const nextId = users.length ? Math.max(...users.map(u => u.id)) + 1 : 1;
       const today = new Date().toISOString().slice(0, 10);
       const newUser = {
@@ -121,6 +224,7 @@ const AdminUsers = () => {
         bookings: 0
       };
       setUsers([newUser, ...users]);
+      setFilteredUsers([newUser, ...filteredUsers]);
       setShowEditModal(false);
       setIsCreatingUser(false);
       setSelectedUser(null);
@@ -129,14 +233,54 @@ const AdminUsers = () => {
     }
 
     if (selectedUser) {
-      setUsers(users.map(user => 
-        user.id === selectedUser.id 
-          ? { ...user, ...editFormData }
-          : user
-      ));
-      setShowEditModal(false);
-      setSelectedUser(null);
-      setEditFormData({});
+      // Update via backend
+      try {
+        const token = localStorage.getItem('token');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        // split name into firstName / lastName for backend
+        const fullName = (editFormData.name || '').trim();
+        const parts = fullName ? fullName.split(/\s+/) : [];
+        const firstName = parts.length ? parts.shift() : '';
+        const lastName = parts.length ? parts.join(' ') : '';
+
+        const payload = {
+          firstName,
+          lastName,
+          email: editFormData.email,
+          phone: editFormData.phone,
+          city: editFormData.city
+        };
+
+        const res = await axios.put(`http://localhost:3000/api/admin/users/${selectedUser.id}`, payload, { headers, withCredentials: true });
+        const updated = res.data.user || res.data;
+
+        const mapped = {
+          id: updated._id || updated.id || selectedUser.id,
+          name: `${updated.firstName || ''} ${updated.lastName || ''}`.trim() || updated.email || editFormData.name,
+          email: updated.email || editFormData.email,
+          phone: updated.phone || editFormData.phone,
+          city: updated.city || editFormData.city,
+          joinDate: updated.createdAt ? String(updated.createdAt).slice(0,10) : selectedUser.joinDate,
+          status: selectedUser.status,
+          bookings: selectedUser.bookings
+        };
+
+        setUsers(users.map(user => 
+          user.id === selectedUser.id ? mapped : user
+        ));
+        setFilteredUsers(filteredUsers.map(user => 
+          user.id === selectedUser.id ? mapped : user
+        ));
+
+        setShowEditModal(false);
+        setSelectedUser(null);
+        setEditFormData({});
+
+      } catch (err) {
+        console.error('Failed to update user on server', err);
+        alert('Failed to update user on server. Changes not saved.');
+      }
     }
   };
 
@@ -280,6 +424,12 @@ const AdminUsers = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.bookings}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleMailUser(user)}
+                          className="text-blue-600 hover:text-blue-900"
+                        >
+                          <Mail className="w-4 h-4" />
+                        </button>
                         <button
                           onClick={() => handleViewUser(user)}
                           className="text-blue-600 hover:text-blue-900"
@@ -502,6 +652,68 @@ const AdminUsers = () => {
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mail Modal */}
+      {showMailModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-lg w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Send Email to User</h3>
+              <button
+                onClick={() => setShowMailModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+                aria-label="Close mail modal"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">To</label>
+                <input
+                  type="email"
+                  value={mailTo}
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                <input
+                  type="text"
+                  value={mailSubject}
+                  onChange={(e) => setMailSubject(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                <textarea
+                  value={mailMessage}
+                  onChange={(e) => setMailMessage(e.target.value)}
+                  rows={8}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowMailModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={sendMailToUser}
+                disabled={mailSending}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              >
+                {mailSending ? 'Sending...' : 'Send Email'}
               </button>
             </div>
           </div>

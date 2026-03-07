@@ -3,7 +3,8 @@ const serviceproviderModel = require('../models/sprovider.model');
 const jwt = require('jsonwebtoken');
 
 async function authUserMiddleware(req, res, next) {
-    const token = req.cookies.token;
+    // accept token from cookie or Authorization header
+    const token = req.cookies?.token || (req.headers?.authorization && req.headers.authorization.split(' ')[1]);
     if (!token) {
         return res.status(401).json({ message: 'please login first' });
     }
@@ -22,7 +23,8 @@ async function authUserMiddleware(req, res, next) {
 }
 
 async function authSproviderMiddleware(req, res, next) {
-    const token = req.cookies.token;
+    // accept token from cookie or Authorization header
+    const token = req.cookies?.token || (req.headers?.authorization && req.headers.authorization.split(' ')[1]);
     if (!token) {
         return res.status(401).json({ message: 'please login first' });
     }
@@ -42,7 +44,8 @@ async function authSproviderMiddleware(req, res, next) {
 
 
 function authCommonMiddleware(req, res, next) {
-  const token = req.cookies.token;
+  // accept token from cookie or Authorization header
+  const token = req.cookies?.token || (req.headers?.authorization && req.headers.authorization.split(' ')[1]);
 
   if (!token) {
     return res.status(401).json({ message: "Not authenticated" });
