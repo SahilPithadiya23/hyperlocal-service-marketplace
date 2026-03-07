@@ -70,14 +70,7 @@ const UserLogin = () => {
           Login
         </h1>
         
-        {/* Admin credentials info */}
-        <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
-          <p className="text-sm text-blue-800 text-center">
-            <strong>Admin Access:</strong><br/>
-            Email: admin@admin.com<br/>
-            Password: admin123
-          </p>
-        </div>
+      
 
         {error && <div className='bg-red-100 text-red-700 p-2 rounded mb-4 text-center'>{error}</div>}
         <form onSubmit={(e) => {submitHandler(e)}}>
