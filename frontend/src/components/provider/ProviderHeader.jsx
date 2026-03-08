@@ -33,7 +33,11 @@ export default function ProviderHeader({provider}) {
       <div className="flex flex-col md:flex-row gap-6 md:items-center">
         <div className="relative mx-auto md:mx-0">
           <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-blue-600 text-white flex items-center justify-center text-2xl sm:text-3xl font-bold">
-            {provider.firstName?.[0]}{provider.lastName?.[0]}
+            {provider?.profileImage ? (
+              <img src={`http://localhost:3000/uploads/providers/${provider.profileImage}`} alt={`${provider.firstName} ${provider.lastName}`} className="w-full h-full object-center rounded-xl" />
+            ) : (
+              `${provider.firstName?.[0]}${provider.lastName?.[0]}`
+            )}
           </div>
           {tempProvider.isVerified && (
             <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow">

@@ -45,7 +45,7 @@ const AdminProviders = () => {
         const res = await axios.get('http://localhost:3000/api/admin/providers', { headers, withCredentials: true });
         const data = res.data;
         const providersFromApi = Array.isArray(data) ? data : (data.providers || data.data || []);
-
+          console.log('Raw providers data from API:', providersFromApi);
         const mapped = providersFromApi.map(p => ({
           id: p._id || p.id,
           name:  `${(p.firstName || '').trim()} ${(p.lastName || '').trim()}`.trim() || p.email || 'Unknown',
@@ -55,7 +55,7 @@ const AdminProviders = () => {
           city: p.city || (p.address && p.address.city) || 'Unknown',
           joinDate: p.createdAt ? String(p.createdAt).slice(0,10) : (p.joinDate || ''),
           status: (typeof p.isAvailable === 'boolean') ? (p.isAvailable ? 'active' : 'inactive') : (p.status || 'active'),
-          rating: p.averageRating || p.rating || 2,
+          rating: Math.round(p.averageRating) || 2,
           jobs: p.totalJobs || 2,
           completed: p.completed || 0
         }));

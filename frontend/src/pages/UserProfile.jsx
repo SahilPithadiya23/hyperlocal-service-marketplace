@@ -10,6 +10,8 @@ import AddReviewForm from "../components/profile/AddReviewForm";
 
 import ReviewSection from "../components/profile/ReviewSection";
 
+import UserBookings from "../components/profile/UserBookings";
+
 import { Mail, Phone, MapPin, Calendar, Clock, Pencil } from "lucide-react";
 
 import axios from "axios";
@@ -353,6 +355,16 @@ const UserProfile = () => {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 pb-6 space-y-4">
+        <UserBookings onSelectBooking={(b) => setRecentBooking({
+          serviceName: b.provider?.serviceName || "",
+          providerName: `${b.provider?.firstName || ""} ${b.provider?.lastName || ""}`,
+          date: b.serviceDate,
+          time: b.serviceTime,
+          status: b.status,
+        })} />
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 pb-6 space-y-4">
 
         <AddReviewForm onReviewSubmit={handleReviewSubmit} setRecentBooking={setRecentBooking} />
 
@@ -387,7 +399,6 @@ const Info = ({ label, value, icon }) => (
   </div>
 
 );
-
 
 
 export default UserProfile;

@@ -33,8 +33,13 @@ const handleLogout = async () => {
       {user.isAuth ? (
         <div className="flex items-center gap-4">
           <Link to="/profile" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100">
-            <User className="w-5 h-5 text-black fill-black" />
-            <span className="font-medium text-gray-700">{user.profile?.name || "My Profile"}</span>
+            {user.profile?.profileImage ? (
+              <img src={`http://localhost:3000/uploads/users/${user.profile?.profileImage}`} alt={`${user.profile?.firstName} ${user.profile?.lastName}`} className="h-12 w-12 object-center rounded-full" />
+            ) : (
+              <span className="w-12 h-12 flex items-center justify-center bg-gray-300 rounded-full text-xs text-gray-600 ">
+                <User className="w-5 h-5 text-black fill-black" />
+              </span>
+            )}
           </Link>
           <button onClick={handleLogout} className="px-3 py-2 text-red-600 hover:bg-gray-100 rounded-lg flex items-center gap-2">
             <LogOut size={16} /> Logout

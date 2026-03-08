@@ -53,7 +53,7 @@ const AdminReviews = () => {
           email: p.email || '',
           category: p.serviceCategory || 'General',
           city: p.city || 'Unknown',
-          averageRating: p.averageRating || 0,
+          averageRating: Math.round(p.averageRating) || 0,
           totalReviews: p.totalReviews || 0,
           completedJobs: p.completedJobs || 0,
           status: (typeof p.isAvailable === 'boolean') ? (p.isAvailable ? 'active' : 'inactive') : (p.status || 'active'),
@@ -96,12 +96,12 @@ const AdminReviews = () => {
   const currentProviders = filteredProviders.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(filteredProviders.length / providersPerPage) || 1;
 
-  const overallAvg = useMemo(() => {
-    if (!filteredProviders.length) return 0;
-    const sum = filteredProviders.reduce((acc, p) => acc + (Number(p.averageRating) || 0), 0);
-    return Number((sum / filteredProviders.length).toFixed(1));
-  }, [filteredProviders]);
-
+  // const overallAvg = useMemo(() => {
+  //   if (!filteredProviders.length) return 0;
+  //   const sum = filteredProviders.reduce((acc, p) => acc + (Number(p.averageRating) || 0), 0);
+  //   return Number((sum / filteredProviders.length).toFixed(1));
+  // }, [filteredProviders]);
+const overallAvg = 4
   const exportRatingsCsv = () => {
     const escapeCsv = (value) => {
       if (value === null || value === undefined) return '';

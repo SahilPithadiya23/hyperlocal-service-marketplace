@@ -11,6 +11,7 @@ import ServiceProviderHeader from "../components/provider/ProviderHeader";
 import UserNavbar from "../components/profile/UserNavbar";
 
 import { staticProvider } from "../data/StaticProvider";
+import ServicePhotos from "../components/provider/ServicePhotos";
 
 const ServiceProviderP = () => {
   const { providerId } = useParams();
@@ -43,6 +44,7 @@ const ServiceProviderP = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <ServicesList provider={provider} />
+            <ServicePhotos providerId={providerId} />
             <ReviewsSection providerId={providerId} />
           </div>
 
