@@ -109,7 +109,7 @@ const OpenStreetMapPlot = ({ lat, lng, onLocationChange, providers = [], service
 
         {/* Render Nearby Providers */}
         {nearbyProviders.map((shop) => (
-          <Marker
+          (shop.isAvailable && <Marker
             key={shop._id}
             position={[shop.lat, shop.long]}
             icon={providerIcon}
@@ -154,7 +154,7 @@ const OpenStreetMapPlot = ({ lat, lng, onLocationChange, providers = [], service
 </button>
               </div>
             </Popup>
-          </Marker>
+          </Marker>)
         ))}
       </MapContainer>
     </div>

@@ -133,7 +133,7 @@ exports.deleteBooking = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 20;
+    const limit = parseInt(req.query.limit, 10) || 50;
     const skip = (page - 1) * limit;
 
     const q = req.query.q
@@ -251,7 +251,7 @@ exports.getAllProviders = async (req, res) => {
   try {
 
     const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 20;
+    const limit = parseInt(req.query.limit, 10) || 50;
     const skip = (page - 1) * limit;
 
     const q = req.query.q
@@ -537,7 +537,7 @@ exports.setProviderAvailability = async (req, res) => {
 exports.getCompletionSummary = async (req, res) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 20;
+    const limit = parseInt(req.query.limit, 10) || 50;
     const skip = (page - 1) * limit;
 
     const q = req.query.q

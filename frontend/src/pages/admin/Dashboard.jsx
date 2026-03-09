@@ -1,8 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import { Users, Briefcase, Calendar, IndianRupee, TrendingUp, TrendingDown, MoreHorizontal, Star, CheckCircle, Clock, UserCircle, LogOut } from 'lucide-react';
 import axios from 'axios';
+import { UserDataContext } from "../../context/UserContext";
+import { Link, useNavigate } from "react-router-dom";
+
 
 const AdminDashboard = () => {
+
+  const { user, setUser } = useContext(UserDataContext);
+    const navigate = useNavigate();
+  
+
   const adminName = 'Admin'; // Static admin name for now
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -70,10 +78,24 @@ const AdminDashboard = () => {
     );
   };
 
-  const logoutAdmin = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
-      window.location.href = '/';
-    }
+  const logoutAdmin = async () => {
+     try {
+    navigate("/", { replace: true });
+
+    setUser({
+      isAuth: false,
+      loading: false,
+      profile: null,
+    });
+
+    await axios.post(
+      "http://localhost:3000/api/auth/logout",
+      {},                       // ✅ body
+      { withCredentials: true } // ✅ config
+    );
+  } catch (error) {
+    console.error("Logout failed", error);
+  }
   };
 
   useEffect(() => {

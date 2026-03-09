@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
-import { User, Mail, Phone, Shield, LogOut, Save } from 'lucide-react';
 
+import { User, Mail, Phone, Shield, LogOut, Save } from 'lucide-react';
+import React, { useState, useEffect,useContext } from 'react';
+import axios from 'axios';
+import { UserDataContext } from "../../context/UserContext";
+import { useNavigate } from "react-router-dom";
 const AdminProfile = () => {
+   const { user, setUser } = useContext(UserDataContext);
+      const navigate = useNavigate();
+    
   const [formData, setFormData] = useState({
     name: 'Admin',
     email: 'admin@email.com',
@@ -20,10 +26,24 @@ const AdminProfile = () => {
     alert('Profile updated (mock)');
   };
 
-  const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
-      window.location.href = '/';
-    }
+  const handleLogout = async() => {
+    try {
+    navigate("/", { replace: true });
+
+    setUser({
+      isAuth: false,
+      loading: false,
+      profile: null,
+    });
+
+    await axios.post(
+      "http://localhost:3000/api/auth/logout",
+      {},                       // ✅ body
+      { withCredentials: true } // ✅ config
+    );
+  } catch (error) {
+    console.error("Logout failed", error);
+  }
   };
 
   return (
