@@ -96,12 +96,11 @@ const AdminReviews = () => {
   const currentProviders = filteredProviders.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(filteredProviders.length / providersPerPage) || 1;
 
-  // const overallAvg = useMemo(() => {
-  //   if (!filteredProviders.length) return 0;
-  //   const sum = filteredProviders.reduce((acc, p) => acc + (Number(p.averageRating) || 0), 0);
-  //   return Number((sum / filteredProviders.length).toFixed(1));
-  // }, [filteredProviders]);
-const overallAvg = 4
+  const overallAvg = useMemo(() => {
+    if (!filteredProviders.length) return 0;
+    const sum = filteredProviders.reduce((acc, p) => acc + (Number(p.averageRating) || 0), 0);
+    return Number((sum / filteredProviders.length).toFixed(1));
+  }, [filteredProviders]);
   const exportRatingsCsv = () => {
     const escapeCsv = (value) => {
       if (value === null || value === undefined) return '';

@@ -31,8 +31,14 @@ exports.getDashboardStats = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalProviders = await ServiceProvider.countDocuments();
+    const totalProvidersWithRating = await ServiceProvider.aggregate([
+  { $match: { averageRating: { $ne: 0 } } },
+  { $count: "total" }
+]);
+
+console.log(totalProvidersWithRating);
     const totalBookings = await Booking.countDocuments();
-    const totalRatings = await Rating.countDocuments();
+    const totalRatings = totalProvidersWithRating.length > 0 ? totalProvidersWithRating[0].total : 0;
     const totalRevenue = await sumRevenue();
     // Completion rate: percentage of bookings with status 'completed'
     const completedBookings = await Booking.countDocuments({ status: 'completed' });
