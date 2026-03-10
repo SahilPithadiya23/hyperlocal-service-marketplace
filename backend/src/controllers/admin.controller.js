@@ -31,14 +31,18 @@ exports.getDashboardStats = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalProviders = await ServiceProvider.countDocuments();
+    const totalProviderRatings = await ServiceProvider.aggregate([
+      { $match: { averageRating: { $ne: 0 } } },
+      { $group: { _id: null, total: { $sum: "$averageRating" } } }
+    ]);
     const totalProvidersWithRating = await ServiceProvider.aggregate([
   { $match: { averageRating: { $ne: 0 } } },
   { $count: "total" }
 ]);
 
-console.log(totalProvidersWithRating);
+ 
     const totalBookings = await Booking.countDocuments();
-    const totalRatings = totalProvidersWithRating.length > 0 ? totalProvidersWithRating[0].total : 0;
+    const totalRatings = totalProviderRatings[0].total / totalProvidersWithRating[0].total;
     const totalRevenue = await sumRevenue();
     // Completion rate: percentage of bookings with status 'completed'
     const completedBookings = await Booking.countDocuments({ status: 'completed' });
@@ -381,6 +385,15 @@ exports.getReviewSummary = async (req, res) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 50;
     const skip = (page - 1) * limit;
+     const totalProviderRatings = await ServiceProvider.aggregate([
+      { $match: { averageRating: { $ne: 0 } } },
+      { $group: { _id: null, total: { $sum: "$averageRating" } } }
+    ]);
+    const totalProvidersWithRating = await ServiceProvider.aggregate([
+  { $match: { averageRating: { $ne: 0 } } },
+  { $count: "total" }
+]);
+    const totalRatings = totalProviderRatings[0].total / totalProvidersWithRating[0].total;
 
     const q = req.query.q
       ? {
@@ -461,7 +474,8 @@ exports.getReviewSummary = async (req, res) => {
         completedJobs: p.completedJobs || 0,
         profileImage: p.profileImage,
         createdAt: p.createdAt,
-        recentReviews
+        recentReviews,
+        totalRatings
       };
     }));
 

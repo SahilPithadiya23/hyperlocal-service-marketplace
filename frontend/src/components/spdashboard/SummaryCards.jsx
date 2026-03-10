@@ -18,7 +18,7 @@ const SummaryCards = () => {
         const ar = Number(data.averageRating || 0);
         // If backend has no data, use static demo values on frontend
         if (nr === 0 && og === 0 && cj === 0 && ar === 0) {
-          setStats({ newRequests: 5, ongoingJobs: 2, completedJobs: 12, averageRating: 4.8 });
+          setStats({ newRequests: 0, ongoingJobs: 0, completedJobs: 0, averageRating: 0 });
         } else {
           setStats({ newRequests: nr, ongoingJobs: og, completedJobs: cj, averageRating: ar });
         }

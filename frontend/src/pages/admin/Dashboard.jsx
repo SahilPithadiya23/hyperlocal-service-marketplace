@@ -196,7 +196,7 @@ const AdminDashboard = () => {
     },
     {
       title: "Avg. Rating",
-      value: `${(stats.totalRatings / stats.totalProviders).toFixed(1)*100}%`,
+      value: stats.totalRatings,
       icon: Star,
       color: "bg-yellow-500",
       path: "/admin/reviews",

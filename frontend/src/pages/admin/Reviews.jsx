@@ -10,6 +10,7 @@ const AdminReviews = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [overallAvgRating, setOverallAvgRating] = useState(0);
   const providersPerPage = 10;
 
   useEffect(() => {
@@ -46,6 +47,9 @@ const AdminReviews = () => {
           // no data - keep mock
           return;
         }
+
+        const overallAvg = providersFromApi.length > 0 ? providersFromApi[0].totalRatings : 0;
+        setOverallAvgRating(overallAvg);
 
         const mapped = providersFromApi.map(p => ({
           id: p.id || p._id,
@@ -96,11 +100,9 @@ const AdminReviews = () => {
   const currentProviders = filteredProviders.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(filteredProviders.length / providersPerPage) || 1;
 
-  const overallAvg = useMemo(() => {
-    if (!filteredProviders.length) return 0;
-    const sum = filteredProviders.reduce((acc, p) => acc + (Number(p.averageRating) || 0), 0);
-    return Number((sum / filteredProviders.length).toFixed(1));
-  }, [filteredProviders]);
+  console.log('Filtered providers:', overallAvgRating);
+  const overallAvg = overallAvgRating ? overallAvgRating : '0.0';
+
   const exportRatingsCsv = () => {
     const escapeCsv = (value) => {
       if (value === null || value === undefined) return '';

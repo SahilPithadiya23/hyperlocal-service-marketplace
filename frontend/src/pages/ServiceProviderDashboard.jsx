@@ -7,7 +7,7 @@ import { ServiceProviderDataContext } from "../context/ServiceProviderContext";
 
 const Dashboard = () => {
   const { provider } = useContext(ServiceProviderDataContext);
-  const sample = { firstName: "Rajesh", lastName: "Kumar" };
+  const sample = { firstName: "", lastName: "" };
   const first = (provider && (provider.firstName || provider.firstname)) || sample.firstName;
   const last = (provider && (provider.lastName || provider.lastname)) || sample.lastName;
   const providerName = `${first} ${last}`.trim();
