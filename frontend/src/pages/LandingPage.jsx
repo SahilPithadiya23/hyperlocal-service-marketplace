@@ -19,7 +19,7 @@ const LandingPage = () => {
   };
 
   const handleCategorySelect = (category) => {
-    navigate("/map", { state: { category } });
+    navigate("/map", { state: { query:category } });
   };
 const [showPopup, setShowPopup] = useState(false);
 const [booking, setBooking] = useState(null);
@@ -40,7 +40,7 @@ useEffect(() => {
 
       if (pending) {
         setBooking(pending);
-        setShowPopup(true);
+        setShowPopup(!pending.reviewGiven);
       }
 
     } catch (err) {

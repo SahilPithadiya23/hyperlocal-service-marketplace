@@ -328,15 +328,10 @@ const AdminProviders = () => {
               <p className="text-blue-100">View and manage all service provider accounts</p>
             </div>
             <div className="flex items-center gap-4">
-              <button
-                onClick={handleAddProvider}
-                className="px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition"
-              >
-                Add Provider
-              </button>
+             
               <button
                 onClick={exportProvidersCsv}
-                className="px-4 py-2 border border-blue-300 text-white rounded-lg hover:bg-blue-700 transition"
+                className="px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition"
                 >
                 Export Providers
               </button>

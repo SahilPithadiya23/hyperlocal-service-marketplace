@@ -1,24 +1,37 @@
 import {
   Wrench, Zap, Paintbrush, Sparkles, Truck, Scissors,
-  Camera, Utensils, Home, Car, Hammer, Flower2
+  Camera, Utensils, Home, Car, Hammer, Flower2,BookOpen
 } from "lucide-react";
 
 
+// const categories = [
+//   { name: "Plumber", icon: Wrench, color: "bg-blue-500/10 text-blue-600" },
+//   { name: "Electrical", icon: Zap, color: "bg-yellow-500/10 text-yellow-600" },
+//   { name: "Painting", icon: Paintbrush, color: "bg-pink-500/10 text-pink-600" },
+//   { name: "Cleaning", icon: Sparkles, color: "bg-cyan-500/10 text-cyan-600" },
+//   { name: "Moving", icon: Truck, color: "bg-orange-500/10 text-orange-600" },
+//   { name: "Salon", icon: Scissors, color: "bg-purple-500/10 text-purple-600" },
+//   { name: "Photography", icon: Camera, color: "bg-rose-500/10 text-rose-600" },
+//   { name: "Catering", icon: Utensils, color: "bg-green-500/10 text-green-600" },
+//   { name: "Interior", icon: Home, color: "bg-indigo-500/10 text-indigo-600" },
+//   { name: "Auto Repair", icon: Car, color: "bg-slate-500/10 text-slate-600" },
+//   { name: "Carpentry", icon: Hammer, color: "bg-yellow-500/10 text-yellow-700" },
+//   { name: "Gardening", icon: Flower2, color: "bg-emerald-500/10 text-emerald-600" },
+// ];
 const categories = [
   { name: "Plumber", icon: Wrench, color: "bg-blue-500/10 text-blue-600" },
-  { name: "Electrical", icon: Zap, color: "bg-yellow-500/10 text-yellow-600" },
-  { name: "Painting", icon: Paintbrush, color: "bg-pink-500/10 text-pink-600" },
+  { name: "Electrician", icon: Zap, color: "bg-yellow-500/10 text-yellow-600" },
+  { name: "Carpenter", icon: Hammer, color: "bg-yellow-500/10 text-yellow-700" },
   { name: "Cleaning", icon: Sparkles, color: "bg-cyan-500/10 text-cyan-600" },
-  { name: "Moving", icon: Truck, color: "bg-orange-500/10 text-orange-600" },
-  { name: "Salon", icon: Scissors, color: "bg-purple-500/10 text-purple-600" },
-  { name: "Photography", icon: Camera, color: "bg-rose-500/10 text-rose-600" },
-  { name: "Catering", icon: Utensils, color: "bg-green-500/10 text-green-600" },
-  { name: "Interior", icon: Home, color: "bg-indigo-500/10 text-indigo-600" },
-  { name: "Auto Repair", icon: Car, color: "bg-slate-500/10 text-slate-600" },
-  { name: "Carpentry", icon: Hammer, color: "bg-yellow-500/10 text-yellow-700" },
+  { name: "AC Repair", icon: Wrench, color: "bg-indigo-500/10 text-indigo-600" },
+  { name: "Painter", icon: Paintbrush, color: "bg-pink-500/10 text-pink-600" },
+  { name: "Tutor", icon: BookOpen, color: "bg-green-500/10 text-green-600" },
+  { name: "Beautician", icon: Scissors, color: "bg-purple-500/10 text-purple-600" },
+  { name: "Home Cleaning", icon: Home, color: "bg-cyan-500/10 text-cyan-700" },
+  { name: "Salon at Home", icon: Sparkles, color: "bg-rose-500/10 text-rose-600" },
+  { name: "Car Repair", icon: Car, color: "bg-slate-500/10 text-slate-600" },
   { name: "Gardening", icon: Flower2, color: "bg-emerald-500/10 text-emerald-600" },
 ];
-
 const CategoriesSection = ({ onCategorySelect }) => {
   return (
     <section id="categories" className="py-12 sm:py-16 md:py-24 bg-gray-50">

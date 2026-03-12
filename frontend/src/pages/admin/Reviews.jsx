@@ -48,7 +48,7 @@ const AdminReviews = () => {
           return;
         }
 
-        const overallAvg = providersFromApi.length > 0 ? providersFromApi[0].totalRatings : 0;
+        const overallAvg = providersFromApi.length > 0 ? Math.round(providersFromApi[0].totalRatings ): 0;
         setOverallAvgRating(overallAvg);
 
         const mapped = providersFromApi.map(p => ({

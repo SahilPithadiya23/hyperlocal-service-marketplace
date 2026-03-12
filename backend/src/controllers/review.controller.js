@@ -16,10 +16,10 @@ exports.createReview = async (req, res) => {
     }
     
     // Prevent duplicate review by same user for same provider
-    const existingReview = await Review.findOne({ user: userId, provider: providerId });
-    if (existingReview) {
-      return res.status(400).json({ message: 'You have already reviewed this provider' });
-    }
+    // const existingReview = await Review.findOne({ user: userId, provider: providerId });
+    // if (existingReview) {
+    //   return res.status(400).json({ message: 'You have already reviewed this provider' });
+    // }
     
     const review = new Review({
       user: userId,
