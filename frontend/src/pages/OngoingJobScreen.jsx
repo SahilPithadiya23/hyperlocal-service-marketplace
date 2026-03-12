@@ -145,11 +145,38 @@ export default function OngoingJobScreen() {
   };
 
 const totalPrice =
-  Number(customerdetails.basePrice) + Number(extraCharges);
+  Number(customerdetails?.basePrice || job.basePrice) + Number(extraCharges);
 
 const totalPriceString = totalPrice.toString();
 
-console.log("Total Price:", customerdetails.basePrice, extraCharges, totalPrice);
+console.log("Total Price:", customerdetails?.basePrice, extraCharges, totalPrice);
+
+  // Handler to send extra charge to backend
+  const submitExtraCharge = async () => {
+    if (!jobId) {
+      alert('Booking id missing');
+      return;
+    }
+    if (!extraCharges || Number(extraCharges) <= 0) {
+      alert('Please enter a valid extra charge amount');
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        'http://localhost:3000/api/extracharge',
+        { bookingId: jobId, amount: Number(extraCharges), reason: extraChargesReason },
+        { withCredentials: true }
+      );
+      alert('Extra charge submitted');
+      setShowExtraChargesModal(false);
+      // optionally clear reason or keep
+      setExtraChargesReason('');
+    } catch (err) {
+      console.error('Failed to submit extra charge', err);
+      alert('Failed to submit extra charge');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -222,7 +249,7 @@ console.log("Total Price:", customerdetails.basePrice, extraCharges, totalPrice)
         onAmountChange={(value) => setExtraCharges(value)}
         onReasonChange={(value) => setExtraChargesReason(value)}
         onCancel={() => setShowExtraChargesModal(false)}
-        onAddCharges={() => setShowExtraChargesModal(false)}
+        onAddCharges={submitExtraCharge}
       />
     </div>
   );

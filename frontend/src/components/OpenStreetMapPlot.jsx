@@ -123,7 +123,7 @@ const OpenStreetMapPlot = ({ lat, lng, onLocationChange, providers = [], service
 
                 <h3 className="font-bold text-sm text-blue-600">{shop.firstName} {shop.lastName}</h3>
                 </div>
-                <p className="text-xs text-gray-600"> ⭐ {shop.averageRating} ({shop.totalReviews} reviews)</p>
+                <p className="text-xs text-gray-600"> ⭐ {Math.round(shop.averageRating)} ({shop.totalReviews} reviews)</p>
                 <p className="text-sm text-gray-700">
                   📍 {getDistanceKm(
                     lat,

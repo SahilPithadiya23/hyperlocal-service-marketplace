@@ -3,7 +3,7 @@ const Review = require("../models/review.model");
 const ServiceProvider = require("../models/sprovider.model");
 const Otp = require("../models/otp.models");
 const sendEmail = require('../config/sendEmail');
-
+const ExtraCharge = require("../models/extraCharge.model");
 // GET bookings for provider dashboard
 exports.getProviderBookings = async (req, res) => {
   try {
@@ -22,7 +22,9 @@ exports.getProviderBookings = async (req, res) => {
           provider: providerId,
           user: booking.user._id,
         });
-
+        
+      const extraCharge = await ExtraCharge.findOne({ bookingId: booking._id });
+      console.log(booking._id, extraCharge)
         return {
           id: booking._id,
           customerName: `${booking.user.firstName} ${booking.user.lastName}`,
@@ -32,7 +34,9 @@ exports.getProviderBookings = async (req, res) => {
           rating: review ? review.rating : 0,
           description: booking.issue,
           address: booking.address,
-          price: booking.provider.visitingCost,
+          price: booking.provider.visitingCost + (extraCharge ? extraCharge.amount : 0),
+          extraCharges: extraCharge ? extraCharge.amount : 0,
+          extraChargesReason: extraCharge ? extraCharge.reason : '',
         };
       })
     );
@@ -59,7 +63,7 @@ exports.getJobDetails = async (req, res) => {
 
     // Find booking & populate user + provider
     const booking = await Booking.findById(bookingId)
-      .populate("user", "firstName lastName phone email address")
+      .populate("user", "firstName lastName phone email address lat long")
       .populate("provider", "visitingCost serviceName");
 
     if (!booking) {
@@ -82,7 +86,7 @@ exports.getJobDetails = async (req, res) => {
       provider: providerId,
       status: "completed"
     });
-
+   console.log(booking.user)
     // Format response
     const job = {
       id: booking._id,
@@ -99,7 +103,9 @@ exports.getJobDetails = async (req, res) => {
       urgency: "Medium", // you can improve later with logic
       specialInstructions: "Please call before arriving.",
       paymentMethod: "Cash",
-      status: booking.status
+      status: booking.status,
+      lat : booking.user.lat,
+      long : booking.user.long,
     };
 
     res.status(200).json({

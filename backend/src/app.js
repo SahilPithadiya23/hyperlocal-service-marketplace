@@ -31,6 +31,7 @@ app.use('/api/servicerequests', serviceRequestListRoutes);
 app.use('/api/servicephoto', servicePhotoRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/extracharge', require('./routes/extraCharge.routes'));
 app.get('/', (req, res) => {    
     res.send('Hello World!');
 });

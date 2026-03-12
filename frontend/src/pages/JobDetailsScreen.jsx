@@ -28,17 +28,19 @@ const JobDetailsScreen = () => {
     urgency: "",
     specialInstructions: "",
     paymentMethod: "",
-    status: ""
+    status: "",
+    lat: 0,
+    long: 0,
   });
   
 console.log("Job ID from URL:", jobId);
   useEffect(() => {
-       const fetchJobDetails = async () => {
-           try {
-               const response = await axios.get(`http://localhost:3000/api/servicerequests/job/${jobId}`,{withCredentials:true});
-               console.log("Fetched job details:", response.data);
-               setJob(response.data.job);
-           } catch (error) {
+    const fetchJobDetails = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/servicerequests/job/${jobId}`, { withCredentials: true });
+        console.log("Fetched job details:", response.data);
+        setJob(response.data.job);
+      } catch (error) {
                console.error("Error fetching job details:", error);
            }
        };
@@ -83,8 +85,10 @@ console.log("Job ID from URL:", jobId);
 
   const handleGetDirections = () => {
     // Open Google Maps or navigation app
-    const encodedAddress = encodeURIComponent(job.address);
-    window.open(`https://maps.google.com/?q=${encodedAddress}`, '_blank');
+    // const encodedAddress = encodeURIComponent(job.address);
+    // window.open(`https://maps.google.com/?q=${encodedAddress}`, '_blank');
+    console.log(`Opening directions for coordinates: ${job.lat}, ${job.long}`);
+    window.open(`https://maps.google.com/?q=${job.lat},${job.long}`, "_blank");
   };
 
   return (

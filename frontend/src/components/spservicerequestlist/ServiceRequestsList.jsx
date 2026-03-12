@@ -23,7 +23,7 @@ const ServiceRequestsListComponent = ({
   return (
     <div className="space-y-4">
       {filteredRequests.map((request) => (
-        <ServiceRequestCard
+          <ServiceRequestCard
           key={request.id}
           request={request}
           getStatusColor={getStatusColor}

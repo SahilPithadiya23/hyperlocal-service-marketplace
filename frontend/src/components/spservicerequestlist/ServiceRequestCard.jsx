@@ -48,6 +48,12 @@ const ServiceRequestCard = ({
           <div className="text-right">
             <p className="text-sm text-gray-500">Estimated Price</p>
             <p className="text-lg font-semibold text-blue-600">{request.price}</p>
+            {request.extraCharges ? (
+              <>
+                <p className="text-xs text-gray-500">Extra Charges: {request.extraCharges}</p>
+                <p className="text-xs text-gray-500">Reason: {request.extraChargesReason || "N/A"}</p>
+              </>
+            ): null}
           </div>
         </div>
 
