@@ -50,7 +50,7 @@ export default function ProviderHeader({provider}) {
           <h1 className="text-xl sm:text-2xl font-bold">{provider.firstName} {provider.lastName}</h1>
           <p className="text-sm text-slate-600 mb-2">{provider.serviceName} • {provider.serviceCategory}</p>
           <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm mb-3">
-            <div className="flex items-center gap-1"><Star className="fill-yellow-400 text-yellow-400 w-4" />{Math.round(provider.averageRating)} <span className="text-slate-600">({provider.totalReviews})</span></div>
+            <div className="flex items-center gap-1"><Star className="fill-yellow-400 text-yellow-400 w-4" />{Number(provider.averageRating).toFixed(1)} <span className="text-slate-600">({provider.totalReviews})</span></div>
             <div className="flex items-center gap-1 text-slate-600"><Briefcase className="w-4" />{provider.experience} yrs experience</div>
             {tempProvider.isVerified && <div className="flex items-center gap-1 text-green-600"><Shield className="w-4" />Verified</div>}
           </div>

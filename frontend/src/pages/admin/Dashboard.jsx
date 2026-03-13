@@ -196,7 +196,7 @@ const AdminDashboard = () => {
     },
     {
       title: "Avg. Rating",
-      value: Math.round(stats.totalRatings),
+      value: Number(stats.totalRatings).toFixed(1),
       icon: Star,
       color: "bg-yellow-500",
       path: "/admin/reviews",

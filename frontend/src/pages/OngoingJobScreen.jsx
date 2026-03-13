@@ -18,7 +18,7 @@ export default function OngoingJobScreen() {
   const { jobId } = useParams();
   const [currentStatus, setCurrentStatus] = useState("accepted");
   const {customerdetails} = location.state || {};
-  const [extraCharges, setExtraCharges] = useState(0);
+  const [extraCharges, setExtraCharges] = useState();
   const [extraChargesReason, setExtraChargesReason] = useState("");
   const [afterPhoto, setAfterPhoto] = useState(null);
   const [showExtraChargesModal, setShowExtraChargesModal] = useState(false);
@@ -28,7 +28,7 @@ export default function OngoingJobScreen() {
   const [otpSent, setOtpSent] = useState(false);
   const [customerEmail, setCustomerEmail] = useState(customerdetails.email); // In real app, this would come from API
   const [uploadedServicePhotoFilename, setUploadedServicePhotoFilename] = useState(null);
-
+  const [verifiedOtp,setVerifiedOtp] = useState(false)
   // Get job ID from URL or navigation state
   console.log("Job ID from URL:", customerdetails);
 
@@ -93,6 +93,7 @@ export default function OngoingJobScreen() {
       // OTP verified successfully
       setCurrentStatus('inprogress');
       setShowOtpModal(false);
+      setVerifiedOtp(true)
       setEnteredOtp('');
     } else {
       alert(res.data.message);
@@ -145,7 +146,7 @@ export default function OngoingJobScreen() {
   };
 
 const totalPrice =
-  Number(customerdetails?.basePrice || job.basePrice) + Number(extraCharges);
+  Number(customerdetails?.basePrice || job.basePrice) + Number(extraCharges||0);
 
 const totalPriceString = totalPrice.toString();
 
@@ -208,6 +209,7 @@ console.log("Total Price:", customerdetails?.basePrice, extraCharges, totalPrice
 
         {/* Photo Upload */}
         <PhotoUpload 
+         verifiedOtp={verifiedOtp}
           afterPhoto={afterPhoto}
           onPhotoUpload={handlePhotoUpload}
           onRemovePhoto={() => setAfterPhoto(null)}

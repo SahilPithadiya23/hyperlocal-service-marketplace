@@ -32,7 +32,7 @@ const ProfileSummary = ({ profileData, averageRating, totalJobs, onPhotoUpload, 
           <div className="flex items-center justify-center gap-2 sm:gap-3 mt-2">
             <div className="flex items-center gap-1">
               {renderStars(Math.floor(provider.averageRating))}
-              <span className="text-sm ml-1">{provider.averageRating}</span>
+              <span className="text-sm ml-1">{provider.averageRating.toFixed(1)}</span>
             </div>
             <span className="text-gray-400">•</span>
             <span className="text-sm text-gray-900">{provider.totalReviews} jobs completed</span>

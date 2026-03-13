@@ -48,7 +48,7 @@ const AdminReviews = () => {
           return;
         }
 
-        const overallAvg = providersFromApi.length > 0 ? Math.round(providersFromApi[0].totalRatings ): 0;
+        const overallAvg = providersFromApi.length > 0 ? Number(providersFromApi[0].totalRatings ).toFixed(1): 0;
         setOverallAvgRating(overallAvg);
 
         const mapped = providersFromApi.map(p => ({
@@ -57,7 +57,7 @@ const AdminReviews = () => {
           email: p.email || '',
           category: p.serviceCategory || 'General',
           city: p.city || 'Unknown',
-          averageRating: Math.round(p.averageRating) || 0,
+          averageRating: Number(p.averageRating).toFixed(1) || 0,
           totalReviews: p.totalReviews || 0,
           completedJobs: p.completedJobs || 0,
           status: (typeof p.isAvailable === 'boolean') ? (p.isAvailable ? 'active' : 'inactive') : (p.status || 'active'),

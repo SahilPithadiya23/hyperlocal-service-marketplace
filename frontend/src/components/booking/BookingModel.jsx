@@ -14,7 +14,10 @@ import axios from "axios";
 const timeSlots = [
   { id: 1, time: "10:00 AM", available: true },
   { id: 2, time: "11:00 AM", available: true },
-  { id: 3, time: "12:00 PM", available: false },
+  { id: 3, time: "12:00 PM", available: true },
+  { id: 4, time: "04:00 PM", available: true },
+  { id: 5, time: "05:00 PM", available: true },
+  { id: 6, time: "06:00 PM", available: true },
 ];
 
 const steps = ["service", "datetime", "address", "summary"];

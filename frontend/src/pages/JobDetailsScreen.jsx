@@ -13,6 +13,7 @@ const JobDetailsScreen = () => {
   const navigate = useNavigate();
   const [jobStarted, setJobStarted] = useState(false);
   const { jobId } = useParams(); // Get job ID from URL params
+  const requestId = jobId
   const [job, setJob] = useState({
     id: "",
     customerName: "",
@@ -64,8 +65,9 @@ console.log("Job ID from URL:", jobId);
     });
   };
 
-  const handleCancelJob = () => {
+  const handleCancelJob = async() => {
     // Navigate to service requests with rejected tab active
+    await axios.post(`http://localhost:3000/api/booking/${requestId}/reject`, {}, { withCredentials: true });
     navigate('/service-requests', { 
       state: { 
         cancelledJobId: job.id,

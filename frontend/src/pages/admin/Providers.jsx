@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Briefcase, Search, Filter, ChevronLeft, ChevronRight, Eye, Edit, Trash2, Mail, Phone, MapPin, Calendar, Star, CheckCircle, Clock } from 'lucide-react';
 import axios from 'axios';
+import { number } from 'framer-motion';
 
 const AdminProviders = () => {
   const [providers, setProviders] = useState([]);
@@ -55,7 +56,7 @@ const AdminProviders = () => {
           city: p.city || (p.address && p.address.city) || 'Unknown',
           joinDate: p.createdAt ? String(p.createdAt).slice(0,10) : (p.joinDate || ''),
           status: (typeof p.isAvailable === 'boolean') ? (p.isAvailable ? 'active' : 'inactive') : (p.status || 'active'),
-          rating: Math.round(p.averageRating) || 2,
+          rating: Number(p.averageRating).toFixed(1) || 2,
           jobs: p.totalJobs || 2,
           completed: p.completed || 0
         }));

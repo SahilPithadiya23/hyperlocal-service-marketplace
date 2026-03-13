@@ -198,7 +198,7 @@ exports.rejectBooking = async (req, res) => {
     if (String(booking.provider) !== String(providerId)) {
       return res.status(403).json({ message: 'Not your booking' });
     }
-    if (booking.status !== 'pending') {
+    if (booking.status === 'completed'||booking.status === 'rejected') {
       return res.status(400).json({ message: 'Only pending bookings can be rejected' });
     }
     booking.status = 'rejected';

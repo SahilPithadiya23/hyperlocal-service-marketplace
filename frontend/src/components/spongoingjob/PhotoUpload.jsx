@@ -1,6 +1,6 @@
 import { Camera, X } from "lucide-react";
 
-export function PhotoUpload({ afterPhoto, onPhotoUpload, onRemovePhoto }) {
+export function PhotoUpload({ afterPhoto, onPhotoUpload, onRemovePhoto,verifiedOtp }) {
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-4">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Service Photo</h2>
@@ -21,6 +21,7 @@ export function PhotoUpload({ afterPhoto, onPhotoUpload, onRemovePhoto }) {
         </div>
       ) : (
         <button
+         disabled={!verifiedOtp}
           onClick={onPhotoUpload}
           className="w-full h-64 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center hover:border-blue-400 transition"
         >
