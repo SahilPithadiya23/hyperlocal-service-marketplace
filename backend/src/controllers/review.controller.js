@@ -6,7 +6,7 @@ const bookingModel = require('../models/book.models');
 // Create a new review
 exports.createReview = async (req, res) => {
   
-    const { providerId, rating, comment } = req.body;
+    const { providerId, rating, comment,bookingId } = req.body;
     const userId = req.user._id;
 
     // Check if provider exists
@@ -36,7 +36,8 @@ exports.createReview = async (req, res) => {
     provider.totalReviews = reviews.length;
     await provider.save();
 
-    const booking = await bookingModel.findOne({ user: userId, provider: providerId });
+    // const booking = await bookingModel.findOne({ user: userId, provider: providerId });
+    const booking = await bookingModel.findById(bookingId);
     if (booking) {
       booking.reviewGiven = true;
       await booking.save();

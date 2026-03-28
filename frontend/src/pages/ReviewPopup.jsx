@@ -20,6 +20,7 @@ const ReviewPopup = ({ booking, onClose }) => {
           providerId: booking.provider._id,
           rating,
           comment,
+          bookingId: booking._id,
         },
         { withCredentials: true }
       );
